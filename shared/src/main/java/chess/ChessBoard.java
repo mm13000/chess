@@ -24,7 +24,10 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-
+        // FIXME: Need to check if there is already a piece there?
+        int col = position.getColumn();
+        int row = position.getRow();
+        this.chessBoard[row][col] = piece;
     }
 
     /**
@@ -35,7 +38,12 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        throw new RuntimeException("Not implemented");
+        int col = position.getColumn();
+        int row = position.getRow();
+        if (this.chessBoard[row][col] == null) {
+            return null;
+        }
+        return this.chessBoard[row][col];
     }
 
     /**
@@ -55,19 +63,62 @@ public class ChessBoard {
         this.chessBoard[7][2] = new ChessPiece(TeamColor.BLACK, PieceType.BISHOP);
         this.chessBoard[7][5] = new ChessPiece(TeamColor.BLACK, PieceType.BISHOP);
         // Knights
-        this.chessBoard[0][2] = new ChessPiece(TeamColor.WHITE, PieceType.KNIGHT);
-        this.chessBoard[0][5] = new ChessPiece(TeamColor.WHITE, PieceType.KNIGHT);
-        this.chessBoard[7][2] = new ChessPiece(TeamColor.BLACK, PieceType.KNIGHT);
-        this.chessBoard[7][5] = new ChessPiece(TeamColor.BLACK, PieceType.KNIGHT);
+        this.chessBoard[0][1] = new ChessPiece(TeamColor.WHITE, PieceType.KNIGHT);
+        this.chessBoard[0][6] = new ChessPiece(TeamColor.WHITE, PieceType.KNIGHT);
+        this.chessBoard[7][1] = new ChessPiece(TeamColor.BLACK, PieceType.KNIGHT);
+        this.chessBoard[7][6] = new ChessPiece(TeamColor.BLACK, PieceType.KNIGHT);
         // Rooks
-        this.chessBoard[0][2] = new ChessPiece(TeamColor.WHITE, PieceType.ROOK);
-        this.chessBoard[0][5] = new ChessPiece(TeamColor.WHITE, PieceType.ROOK);
-        this.chessBoard[7][2] = new ChessPiece(TeamColor.BLACK, PieceType.ROOK);
-        this.chessBoard[7][5] = new ChessPiece(TeamColor.BLACK, PieceType.ROOK);
+        this.chessBoard[0][0] = new ChessPiece(TeamColor.WHITE, PieceType.ROOK);
+        this.chessBoard[0][7] = new ChessPiece(TeamColor.WHITE, PieceType.ROOK);
+        this.chessBoard[7][0] = new ChessPiece(TeamColor.BLACK, PieceType.ROOK);
+        this.chessBoard[7][7] = new ChessPiece(TeamColor.BLACK, PieceType.ROOK);
         // Pawns
         for (int i = 0; i < 8; i++) {
             this.chessBoard[1][i] = new ChessPiece(TeamColor.WHITE, PieceType.PAWN);
             this.chessBoard[6][i] = new ChessPiece(TeamColor.BLACK, PieceType.PAWN);
         }
+    }
+
+    @Override
+    public String toString() {
+        // Build output string to print board
+        StringBuilder out = new StringBuilder();
+        for (int i = 7; i >= 0; i--) {
+            for (int j = 0; j < 8; j++) {
+                out.append("|");
+                String pieceLetter;
+                if (this.chessBoard[i][j] == null) {
+                    pieceLetter = "   ";
+                } else if (this.chessBoard[i][j].pieceColor.equals(TeamColor.WHITE)) {
+                    pieceLetter = switch (this.chessBoard[i][j].type) {
+                        case KING -> " K ";
+                        case QUEEN -> " Q ";
+                        case BISHOP -> " B ";
+                        case ROOK -> " R ";
+                        case KNIGHT -> " N ";
+                        case PAWN -> " P ";
+                    };
+                } else {
+                    pieceLetter = switch (this.chessBoard[i][j].type) {
+                        case KING -> " k ";
+                        case QUEEN -> " q ";
+                        case BISHOP -> " b ";
+                        case ROOK -> " r ";
+                        case KNIGHT -> " n ";
+                        case PAWN -> " p ";
+                    };
+                }
+                out.append(pieceLetter);
+            }
+            out.append("|\n");
+        }
+
+        return out.toString();
+    }
+
+    public static void main(String[] args) {
+        ChessBoard my_board = new ChessBoard();
+        my_board.resetBoard();
+        System.out.println(my_board);
     }
 }
