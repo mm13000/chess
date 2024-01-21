@@ -1,5 +1,8 @@
 package chess;
 
+import chess.ChessPiece.PieceType;
+import chess.ChessGame.TeamColor;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -8,8 +11,10 @@ package chess;
  */
 public class ChessBoard {
 
+    public ChessPiece[][] chessBoard;
+
     public ChessBoard() {
-        
+        this.chessBoard = new ChessPiece[8][8];
     }
 
     /**
@@ -19,7 +24,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        throw new RuntimeException("Not implemented");
+
     }
 
     /**
@@ -38,6 +43,31 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        // Kings
+        this.chessBoard[0][4] = new ChessPiece(TeamColor.WHITE, PieceType.KING);
+        this.chessBoard[7][4] = new ChessPiece(TeamColor.BLACK, PieceType.KING);
+        // Queens
+        this.chessBoard[0][3] = new ChessPiece(TeamColor.WHITE, PieceType.QUEEN);
+        this.chessBoard[7][3] = new ChessPiece(TeamColor.BLACK, PieceType.QUEEN);
+        // Bishops
+        this.chessBoard[0][2] = new ChessPiece(TeamColor.WHITE, PieceType.BISHOP);
+        this.chessBoard[0][5] = new ChessPiece(TeamColor.WHITE, PieceType.BISHOP);
+        this.chessBoard[7][2] = new ChessPiece(TeamColor.BLACK, PieceType.BISHOP);
+        this.chessBoard[7][5] = new ChessPiece(TeamColor.BLACK, PieceType.BISHOP);
+        // Knights
+        this.chessBoard[0][2] = new ChessPiece(TeamColor.WHITE, PieceType.KNIGHT);
+        this.chessBoard[0][5] = new ChessPiece(TeamColor.WHITE, PieceType.KNIGHT);
+        this.chessBoard[7][2] = new ChessPiece(TeamColor.BLACK, PieceType.KNIGHT);
+        this.chessBoard[7][5] = new ChessPiece(TeamColor.BLACK, PieceType.KNIGHT);
+        // Rooks
+        this.chessBoard[0][2] = new ChessPiece(TeamColor.WHITE, PieceType.ROOK);
+        this.chessBoard[0][5] = new ChessPiece(TeamColor.WHITE, PieceType.ROOK);
+        this.chessBoard[7][2] = new ChessPiece(TeamColor.BLACK, PieceType.ROOK);
+        this.chessBoard[7][5] = new ChessPiece(TeamColor.BLACK, PieceType.ROOK);
+        // Pawns
+        for (int i = 0; i < 8; i++) {
+            this.chessBoard[1][i] = new ChessPiece(TeamColor.WHITE, PieceType.PAWN);
+            this.chessBoard[6][i] = new ChessPiece(TeamColor.BLACK, PieceType.PAWN);
+        }
     }
 }
