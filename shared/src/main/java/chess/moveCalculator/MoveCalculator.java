@@ -1,4 +1,4 @@
-package chess.MoveCalculator;
+package chess.moveCalculator;
 
 public class MoveCalculator {
     /*
