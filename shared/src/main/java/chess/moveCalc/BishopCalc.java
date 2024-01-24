@@ -1,9 +1,6 @@
 package chess.moveCalc;
 
-import chess.ChessBoard;
-import chess.ChessMove;
-import chess.ChessPosition;
-import chess.ChessPiece;
+import chess.*;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -11,16 +8,21 @@ import java.util.HashSet;
 public class BishopCalc extends MoveCalc {
     public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
 
-        HashSet<ChessMove> moves = new HashSet<>(); // Stores the valid moves we calculate
+        // Get basic info about my piece
+        int myRow = myPosition.getRow();
+        int myCol = myPosition.getColumn();
+        ChessPiece myPiece = board.getPiece(myPosition);
 
-        // True until out of bounds, encounters friendly piece, or encounters opponent piece
-        boolean can_continue = true;
+        // Stores the valid moves we calculate
+        HashSet<ChessMove> moves = new HashSet<>();
 
+        // 4 iterations for each diagonal direction: NW, NE, SE, SW
         for (int k = 0; k < 4; k++) {
-            // 4 iterations: NW, NE, SE, SW
-            int row = myPosition.getRow();
-            int col = myPosition.getColumn();
-            while (can_continue) {
+            // At each iteration, start where the Bishop is located
+            int row = myRow;
+            int col = myCol;
+            while (true) {
+                // Adjust the row and column by one step
                 row = switch (k) {
                     case 0, 1 -> row + 1;
                     case 2, 3 -> row - 1;
@@ -31,19 +33,26 @@ public class BishopCalc extends MoveCalc {
                     case 1, 2 -> col + 1;
                     default -> throw new IllegalStateException("Unexpected value: " + k);
                 };
+                ChessPosition newPosition = new ChessPosition(row, col);
+                // First check that we have not gone out of bounds
+                if (ChessBoard.invalidPosition(newPosition)) {
+                    break;
+                }
+                // get the ChessPiece and ChessMove at the new location we are exploring
                 ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-                if (piece != null) {
-                    can_continue = false; // FIXME
+                ChessMove move = new ChessMove(myPosition, new ChessPosition(row, col));
+                if (piece == null) {
+                    // If there is no piece there, it is a valid move:
+                    moves.add(move);
+                } else if (piece.teamColor.equals(myPiece.teamColor)) {
+                    // If one of my team's pieces is there, not valid move and cannot continue searching this direction
+                    break;
+                } else {
+                    // If one of opponent's pieces is there, valid move but also cannot continue to look this direction
+                    moves.add(move);
+                    break;
                 }
             }
-        }
-
-        // Traverse the NW diagonal
-
-        // Traverse the NE diagonal
-        can_continue = true;
-        while (can_continue) {
-
         }
 
         return moves;
