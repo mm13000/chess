@@ -4,7 +4,6 @@ import chess.ChessPiece.PieceType;
 import chess.ChessGame.TeamColor;
 
 import java.util.Arrays;
-import java.util.Collection;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -118,24 +117,24 @@ public class ChessBoard {
                 out.append("|");
                 String pieceLetter;
                 if (this.chessBoard[i][j] == null) {
-                    pieceLetter = "   ";
+                    pieceLetter = " ";
                 } else if (this.chessBoard[i][j].teamColor.equals(TeamColor.WHITE)) {
                     pieceLetter = switch (this.chessBoard[i][j].pieceType) {
-                        case KING -> " K ";
-                        case QUEEN -> " Q ";
-                        case BISHOP -> " B ";
-                        case ROOK -> " R ";
-                        case KNIGHT -> " N ";
-                        case PAWN -> " P ";
+                        case KING -> "K";
+                        case QUEEN -> "Q";
+                        case BISHOP -> "B";
+                        case ROOK -> "R";
+                        case KNIGHT -> "N";
+                        case PAWN -> "P";
                     };
                 } else {
                     pieceLetter = switch (this.chessBoard[i][j].pieceType) {
-                        case KING -> " k ";
-                        case QUEEN -> " q ";
-                        case BISHOP -> " b ";
-                        case ROOK -> " r ";
-                        case KNIGHT -> " n ";
-                        case PAWN -> " p ";
+                        case KING -> "k";
+                        case QUEEN -> "q";
+                        case BISHOP -> "b";
+                        case ROOK -> "r";
+                        case KNIGHT -> "n";
+                        case PAWN -> "p";
                     };
                 }
                 out.append(pieceLetter);
@@ -144,15 +143,5 @@ public class ChessBoard {
         }
 
         return out.toString();
-    }
-
-    public static void main(String[] args) {
-        ChessBoard my_board = new ChessBoard();
-//        my_board.resetBoard();
-//        System.out.println(my_board);
-        ChessPiece myPiece = new ChessPiece(TeamColor.WHITE, PieceType.BISHOP);
-        ChessPosition myPosition = new ChessPosition(5,4);
-        my_board.addPiece(myPosition, myPiece);
-        Collection<ChessMove> moves = myPiece.pieceMoves(my_board, myPosition);
     }
 }

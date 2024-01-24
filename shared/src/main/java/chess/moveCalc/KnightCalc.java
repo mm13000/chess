@@ -40,8 +40,8 @@ public class KnightCalc extends MoveCalc {
             // Check that we are not out of bounds
             if (ChessBoard.invalidPosition(newPosition)) continue;
             // Get ChessPiece at that position, and corresponding (possible) ChessMove
-            ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-            ChessMove move = new ChessMove(myPosition, new ChessPosition(row, col));
+            ChessPiece piece = board.getPiece(newPosition);
+            ChessMove move = new ChessMove(myPosition, newPosition);
             // Check the possible move, add to 'moves' set if applicable, stop iterating if needed
             if (piece == null) {
                 moves.add(move);

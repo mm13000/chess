@@ -35,12 +35,10 @@ public class BishopCalc extends MoveCalc {
                 };
                 ChessPosition newPosition = new ChessPosition(row, col);
                 // First check that we have not gone out of bounds
-                if (ChessBoard.invalidPosition(newPosition)) {
-                    break;
-                }
+                if (ChessBoard.invalidPosition(newPosition)) break;
                 // get the ChessPiece and ChessMove at the new location we are exploring
-                ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-                ChessMove move = new ChessMove(myPosition, new ChessPosition(row, col));
+                ChessPiece piece = board.getPiece(newPosition);
+                ChessMove move = new ChessMove(myPosition, newPosition);
                 if (piece == null) {
                     // If there is no piece there, it is a valid move:
                     moves.add(move);

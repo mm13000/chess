@@ -10,10 +10,9 @@ public class MoveCalc {
     /*
     This is a super class for each type of chess move
      */
+
     public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        int row = myPosition.getRow();
-        int col = myPosition.getColumn();
-        return switch (board.chessBoard[row][col].type) {
+        return switch (board.getPiece(myPosition).pieceType) {
             case KING -> KingCalc.pieceMoves(board, myPosition);
             case QUEEN -> QueenCalc.pieceMoves(board, myPosition);
             case BISHOP -> BishopCalc.pieceMoves(board, myPosition);
