@@ -1,6 +1,6 @@
 package chess;
 
-import chess.moveCalc.MoveCalc;
+import chess.moveCalc.*;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -13,23 +13,11 @@ import java.util.Objects;
  */
 public class ChessPiece {
 
-    public ChessGame.TeamColor teamColor;
-    public ChessPiece.PieceType pieceType;
+    ChessGame.TeamColor teamColor;
+    PieceType pieceType;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ChessPiece that = (ChessPiece) o;
-        return getTeamColor() == that.getTeamColor() && getPieceType() == that.getPieceType();
-    }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getTeamColor(), getPieceType());
-    }
-
-    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+    public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
         this.teamColor = pieceColor;
         this.pieceType = type;
     }
@@ -68,6 +56,47 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return MoveCalc.pieceMoves(board, myPosition);
+        return switch (board.getPiece(myPosition).getPieceType()) {
+            case KING -> new KingCalc().pieceMoves(board, myPosition);
+            case QUEEN -> new QueenCalc().pieceMoves(board, myPosition);
+            case BISHOP -> new BishopCalc().pieceMoves(board, myPosition);
+            case KNIGHT -> new KnightCalc().pieceMoves(board, myPosition);
+            case ROOK -> new RookCalc().pieceMoves(board, myPosition);
+            case PAWN -> new PawnCalc().pieceMoves(board, myPosition);
+        };
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        return getTeamColor() == that.getTeamColor() && getPieceType() == that.getPieceType();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getTeamColor(), getPieceType());
+    }
+
+    @Override
+    public String toString() {
+        if (this.teamColor.equals(ChessGame.TeamColor.WHITE)) {
+            return switch (this.pieceType) {
+                case PAWN -> "P";
+                case ROOK -> "R";
+                case KING -> "K";
+                case QUEEN -> "Q";
+                case BISHOP -> "B";
+                case KNIGHT -> "N";
+            };
+        } else return switch (this.pieceType) {
+            case KING -> "k";
+            case QUEEN -> "q";
+            case BISHOP -> "b";
+            case KNIGHT -> "n";
+            case ROOK -> "r";
+            case PAWN -> "p";
+        };
     }
 }

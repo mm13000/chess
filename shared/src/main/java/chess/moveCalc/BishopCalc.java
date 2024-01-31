@@ -1,65 +1,46 @@
 package chess.moveCalc;
 
-import chess.*;
+import chess.ChessBoard;
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.ChessPosition;
 
 import java.util.Collection;
 import java.util.HashSet;
 
-public class BishopCalc extends MoveCalc {
-    public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-
-        // Get basic info about my piece
-        int myRow = myPosition.getRow();
-        int myCol = myPosition.getColumn();
+public class BishopCalc implements MoveCalc {
+    @Override
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        HashSet<ChessMove> moves = new HashSet<>();
         ChessPiece myPiece = board.getPiece(myPosition);
 
-        // Stores the valid moves we calculate
-        HashSet<ChessMove> moves = new HashSet<>();
-
-        // 4 iterations for each diagonal direction: NW, NE, SE, SW
+        // 4 iterations for 4 directions: {0: NW, 1: NE, 2: SE, 3: SW}
         for (int k = 0; k < 4; k++) {
-            // At each iteration, start where the Bishop is located
-            int row = myRow;
-            int col = myCol;
+            int row = myPosition.getRow();
+            int col = myPosition.getColumn();
             while (true) {
-                // Adjust the row and column by one step
                 row = switch (k) {
                     case 0, 1 -> row + 1;
                     case 2, 3 -> row - 1;
-                    default -> throw new IllegalStateException("Unexpected value: " + k);
+                    default -> row;
                 };
                 col = switch (k) {
                     case 0, 3 -> col - 1;
                     case 1, 2 -> col + 1;
-                    default -> throw new IllegalStateException("Unexpected value: " + k);
+                    default -> col;
                 };
+                if (row < 1 || row > 8 || col < 1 || col > 8) break; // if out of bounds, break while loop, start again
                 ChessPosition newPosition = new ChessPosition(row, col);
-                // First check that we have not gone out of bounds
-                if (ChessBoard.invalidPosition(newPosition)) break;
-                // get the ChessPiece and ChessMove at the new location we are exploring
-                ChessPiece piece = board.getPiece(newPosition);
-                ChessMove move = new ChessMove(myPosition, newPosition);
-                if (piece == null) {
-                    // If there is no piece there, it is a valid move:
-                    moves.add(move);
-                } else if (piece.teamColor.equals(myPiece.teamColor)) {
-                    // If one of my team's pieces is there, not valid move and cannot continue searching this direction
-                    break;
-                } else {
-                    // If one of opponent's pieces is there, valid move but also cannot continue to look this direction
-                    moves.add(move);
+                ChessMove possibleMove = new ChessMove(myPosition, newPosition);
+                ChessPiece occupyingPiece = board.getPiece(newPosition);
+                if (occupyingPiece == null) moves.add(possibleMove); // if no one there, add move but don't break
+                else if (occupyingPiece.getTeamColor().equals(myPiece.getTeamColor())) break; // if same team, break
+                else {
+                    moves.add(possibleMove); // if opposite team, add move and break
                     break;
                 }
             }
         }
-
         return moves;
-        /*
-        Valid moves are anything on the diagonal. Includes killing opponent piece. Cannot pass/get blocked by team
-        piece. Start where bishop is located. Work in different directions, one move at a time, adding to the 'moves'
-        set as I go.
-
-        Maybe while loops
-        */
     }
 }

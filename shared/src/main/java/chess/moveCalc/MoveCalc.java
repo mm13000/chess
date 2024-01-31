@@ -6,20 +6,6 @@ import chess.ChessPosition;
 
 import java.util.Collection;
 
-public class MoveCalc {
-    /*
-    This is a super class for each type of chess move
-     */
-
-    public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return switch (board.getPiece(myPosition).pieceType) {
-            case KING -> KingCalc.pieceMoves(board, myPosition);
-            case QUEEN -> QueenCalc.pieceMoves(board, myPosition);
-            case BISHOP -> BishopCalc.pieceMoves(board, myPosition);
-            case KNIGHT -> KnightCalc.pieceMoves(board, myPosition);
-            case ROOK -> RookCalc.pieceMoves(board, myPosition);
-            case PAWN -> PawnCalc.pieceMoves(board, myPosition);
-            case null -> null;
-        };
-    }
+public interface MoveCalc {
+    Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition);
 }

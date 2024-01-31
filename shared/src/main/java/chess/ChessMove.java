@@ -10,9 +10,9 @@ import java.util.Objects;
  */
 public class ChessMove {
 
-    public ChessPosition startPosition;
-    public ChessPosition endPosition;
-    public ChessPiece.PieceType promotionPiece;
+    ChessPosition startPosition;
+    ChessPosition endPosition;
+    ChessPiece.PieceType promotionPiece;
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
@@ -22,7 +22,7 @@ public class ChessMove {
     }
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition) {
-        this(startPosition, endPosition,null);
+        this(startPosition, endPosition, null);
     }
 
     /**
@@ -60,5 +60,22 @@ public class ChessMove {
     @Override
     public int hashCode() {
         return Objects.hash(getStartPosition(), getEndPosition(), getPromotionPiece());
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder boardString = new StringBuilder();
+        for (int i = 8; i >= 1; i--) {
+            boardString.append("|");
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition pos = new ChessPosition(i, j);
+                if (pos.equals(startPosition)) boardString.append("x");
+                else if (pos.equals(endPosition)) boardString.append("*");
+                else boardString.append(" ");
+                boardString.append("|");
+            }
+            boardString.append("\n");
+        }
+        return boardString.toString();
     }
 }

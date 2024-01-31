@@ -8,51 +8,39 @@ import chess.ChessPosition;
 import java.util.Collection;
 import java.util.HashSet;
 
-public class RookCalc extends MoveCalc {
-    public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        // basic piece info
-        int myRow = myPosition.getRow();
-        int myCol = myPosition.getColumn();
+public class RookCalc implements MoveCalc{
+    @Override
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        HashSet<ChessMove> moves = new HashSet<>();
         ChessPiece myPiece = board.getPiece(myPosition);
 
-        // set to store valid moves we calculate
-        HashSet<ChessMove> moves = new HashSet<>();
-
-        // Four iterations to search {0: up, 1: down, 2: left, 3: right}
+        // 4 iterations for 4 directions: {0: N, 1: E, 2: S, 3: W}
         for (int k = 0; k < 4; k++) {
-            // At each iteration, start where the Rook is located
-            int row = myRow;
-            int col = myCol;
+            int row = myPosition.getRow();
+            int col = myPosition.getColumn();
             while (true) {
-                // Adjust the row or column by one step to move up, down, left, or right
                 row = switch (k) {
                     case 0 -> row + 1;
-                    case 1 -> row - 1;
+                    case 2 -> row - 1;
                     default -> row;
                 };
                 col = switch (k) {
-                    case 2 -> col - 1;
-                    case 3 -> col + 1;
+                    case 1 -> col + 1;
+                    case 3 -> col - 1;
                     default -> col;
                 };
+                if (row < 1 || row > 8 || col < 1 || col > 8) break; // if out of bounds, break while loop, start again
                 ChessPosition newPosition = new ChessPosition(row, col);
-                // Check that we are not out of bounds
-                if (ChessBoard.invalidPosition(newPosition)) break;
-                // Get ChessPiece at that position, and corresponding (possible) ChessMove
-                ChessPiece piece = board.getPiece(newPosition);
-                ChessMove move = new ChessMove(myPosition, newPosition);
-                // Check the possible move, add to 'moves' set if applicable, stop iterating if needed
-                if (piece == null) {
-                    moves.add(move);
-                } else if (piece.teamColor.equals(myPiece.teamColor)) {
-                    break;
-                } else {
-                    moves.add(move);
+                ChessMove possibleMove = new ChessMove(myPosition, newPosition);
+                ChessPiece occupyingPiece = board.getPiece(newPosition);
+                if (occupyingPiece == null) moves.add(possibleMove); // if no one there, add move but don't break
+                else if (occupyingPiece.getTeamColor().equals(myPiece.getTeamColor())) break; // if same team, break
+                else {
+                    moves.add(possibleMove); // if opposite team, add move and break
                     break;
                 }
             }
         }
-
         return moves;
     }
 }

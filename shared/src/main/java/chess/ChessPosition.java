@@ -10,8 +10,8 @@ import java.util.Objects;
  */
 public class ChessPosition {
 
-    public int row;
-    public int column;
+    int row;
+    int column;
 
     public ChessPosition(int row, int col) {
         this.row = row;
@@ -23,7 +23,7 @@ public class ChessPosition {
      * 1 codes for the bottom row
      */
     public int getRow() {
-        return this.row;
+        return row;
     }
 
     /**
@@ -31,7 +31,7 @@ public class ChessPosition {
      * 1 codes for the left row
      */
     public int getColumn() {
-        return this.column;
+        return column;
     }
 
     @Override
@@ -45,5 +45,13 @@ public class ChessPosition {
     @Override
     public int hashCode() {
         return Objects.hash(getRow(), getColumn());
+    }
+
+    @Override
+    public String toString() {
+        return "ChessPosition{" +
+                "row=" + row +
+                ", column=" + column +
+                '}';
     }
 }
