@@ -10,14 +10,15 @@ import java.util.Arrays;
  */
 public class ChessBoard {
 
-    ChessPiece[][] board;
+    private final ChessPiece[][] board;
 
     public ChessBoard() {
         board = new ChessPiece[8][8];
     }
 
     /**
-     * Adds a chess piece to the chessboard
+     * Adds a chess piece to the chessboard.
+     * Does NOT check whether a piece is already there.
      *
      * @param position where to add the piece to
      * @param piece    the piece to add
@@ -26,6 +27,15 @@ public class ChessBoard {
         int row = position.getRow();
         int col = position.getColumn();
         board[row - 1][col - 1] = piece;
+    }
+
+    /**
+     * Removes the piece at the specified location on the board
+     */
+    public void removePiece(ChessPosition position) {
+        int row = position.getRow();
+        int col = position.getColumn();
+        board[row - 1][col - 1] = null;
     }
 
     /**
@@ -39,6 +49,16 @@ public class ChessBoard {
         int row = position.getRow();
         int col = position.getColumn();
         return board[row - 1][col - 1];
+    }
+
+    /**
+     * Moves a chess piece from one spot to another on the board
+     * Does not worry about whether the move is valid in the context of the game
+     */
+    public void movePiece(ChessMove move) {
+        ChessPiece piece = getPiece(move.getStartPosition());
+        addPiece(move.getEndPosition(), piece);
+        removePiece(move.getEndPosition());
     }
 
     /**
