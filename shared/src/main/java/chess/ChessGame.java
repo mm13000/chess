@@ -1,5 +1,7 @@
 package chess;
 
+import chess.chessRules.ChessRules;
+
 import java.util.Collection;
 
 /**
@@ -10,19 +12,17 @@ import java.util.Collection;
  */
 public class ChessGame {
 
-    ChessBoard board;
-    TeamColor teamTurn;
+    ChessGameState state;
 
     public ChessGame() {
-        board = new ChessBoard();
-        board.resetBoard();
+        state = new ChessGameState();
     }
 
     /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        return teamTurn;
+        return state.getTurn();
     }
 
     /**
@@ -31,7 +31,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        teamTurn = team;
+        state.setTurn(team);
     }
 
     /**
@@ -51,6 +51,8 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         throw new RuntimeException("Not implemented");
+        // Get possible moves
+        // For each move, check that the king would not be put in check
     }
 
     /**
@@ -64,7 +66,7 @@ public class ChessGame {
         boolean moveIsValid = false;
         for (var validMove : validMoves) {
             if (validMove.equals(move)) {
-                board.movePiece(move);
+                state.getBoard().movePiece(move);
                 moveIsValid = true;
                 break;
             }
@@ -109,7 +111,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        this.board = board;
+        state.setBoard(board);
     }
 
     /**
@@ -118,6 +120,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        return board;
+        return state.getBoard();
     }
 }
