@@ -25,6 +25,10 @@ public class ChessMove {
         this(startPosition, endPosition, null);
     }
 
+    public ChessMove ReverseMove() {
+        return new ChessMove(endPosition, startPosition);
+    }
+
     /**
      * @return ChessPosition of starting location
      */

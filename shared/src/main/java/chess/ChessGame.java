@@ -12,7 +12,7 @@ import java.util.Collection;
  */
 public class ChessGame {
 
-    ChessGameState state;
+    private final ChessGameState state;
 
     public ChessGame() {
         state = new ChessGameState();
@@ -50,9 +50,7 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
-        // Get possible moves
-        // For each move, check that the king would not be put in check
+        return state.getRules().validMoves(state.getBoard(), startPosition);
     }
 
     /**
@@ -81,7 +79,7 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return state.getRules().isInCheck(state.getBoard(), teamColor);
     }
 
     /**
@@ -91,7 +89,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return state.getRules().isInCheckmate(state.getBoard(), teamColor);
     }
 
     /**
@@ -102,7 +100,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return state.getRules().isInStalemate(state.getBoard(), teamColor);
     }
 
     /**
