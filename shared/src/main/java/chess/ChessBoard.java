@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -49,6 +50,19 @@ public class ChessBoard {
         int row = position.getRow();
         int col = position.getColumn();
         return board[row - 1][col - 1];
+    }
+
+    public HashMap<ChessPosition, ChessPiece> getAllPieces() {
+        HashMap<ChessPosition, ChessPiece> pieces = new HashMap<>();
+
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                pieces.put(position, getPiece(position));
+            }
+        }
+
+        return pieces;
     }
 
     /**
