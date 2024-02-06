@@ -49,9 +49,16 @@ public class ChessPosition {
 
     @Override
     public String toString() {
-        return "ChessPosition{" +
-                "row=" + row +
-                ", column=" + column +
-                '}';
+        StringBuilder boardString = new StringBuilder();
+        for (int i = 8; i >= 1; i--) {
+            boardString.append("|");
+            for (int j = 1; j <= 8; j++) {
+                if (i == getRow() && j == getColumn()) boardString.append("x");
+                else boardString.append(" ");
+                boardString.append("|");
+            }
+            boardString.append("\n");
+        }
+        return boardString.toString();
     }
 }

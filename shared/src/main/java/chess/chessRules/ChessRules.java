@@ -6,21 +6,25 @@ import chess.ChessPiece.PieceType;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.function.BiPredicate;
 
 public class ChessRules {
     public Collection<ChessMove> validMoves(ChessBoard board, ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
-        if (piece == null) {
-            return null;
-        }
+
+        // If no piece in given position, no valid moves
+        if (piece == null) return null;
+
         // Create a collection to hold any valid moves we find
         HashSet<ChessMove> validMoves = new HashSet<>();
 
-        // Get possible moves from piece's calculator
+        // Get possible moves from piece
         Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition);
 
+        // Check each of the moves to see that it will not put our team in check
         for (var possibleMove : possibleMoves) {
+            // Get the piece that is in the possible move's end position
+            // (we'll need to put it back since these moves are hypothetical)
+            var endPositionPiece = board.getPiece(possibleMove.getEndPosition());
             // Try making the move
             board.movePiece(possibleMove);
 
@@ -30,57 +34,46 @@ public class ChessRules {
                 validMoves.add(possibleMove);
             }
 
-            // Always return the board to its original state
+            // Return the board to its original state
             board.movePiece(possibleMove.ReverseMove());
+            board.addPiece(possibleMove.getEndPosition(), endPositionPiece);
         }
 
         return validMoves;
     }
 
-    private ChessPosition getPiecePosition(ChessBoard board, BiPredicate<ChessPiece, TeamColor> condition) {
-        for (int i = 1; i <= 8; i++) {
-            for (int j = 1; j <= 8; j++) {
-                ChessPosition position = new ChessPosition(i, j);
-                ChessPiece piece = board.getPiece(position);
-                if (condition.test(piece, piece.getTeamColor())) {
-                    return position;
-                }
-            }
-        }
-        return null;
-    }
-
     public boolean isInCheck(ChessBoard board, TeamColor teamColor) {
-        // get our King's position
-        BiPredicate<ChessPiece, TeamColor> kingCondition = (piece, team) -> piece.getPieceType() == PieceType.KING && piece.getTeamColor().equals(team);
+        // get positions of all pieces
+        var pieces = board.getAllPieces();
+
+        // First find our King's position
         ChessPosition kingPosition = null;
-        for (int i = 1; i <= 8; i++) {
-            for (int j = 1; j <= 8; j++) {
-                ChessPosition position = new ChessPosition(i, j);
-                ChessPiece piece = board.getPiece(position);
-                if (piece != null && piece.getPieceType() == PieceType.KING && piece.getTeamColor() == teamColor) {
-                    kingPosition = position;
+        for (var positionPieceEntry : pieces.entrySet()) {
+            var pos = positionPieceEntry.getKey();
+            var piece = positionPieceEntry.getValue();
+            if (piece.getTeamColor() == teamColor && piece.getPieceType() == PieceType.KING) {
+                kingPosition = pos;
+                break;
+            }
+        }
+
+        // If there is no King for this team, the team is not in check (just for running test cases)
+        if (kingPosition == null) return false;
+
+        // For each opposing piece, check if it could move into our King's position
+        for (var positionPieceEntry : pieces.entrySet()) {
+            ChessPosition pos = positionPieceEntry.getKey();
+            ChessPiece piece = positionPieceEntry.getValue();
+            if (piece.getTeamColor() != teamColor) {
+                // Get all the moves this enemy piece could make
+                Collection<ChessMove> enemyMoves = piece.pieceMoves(board, pos);
+                // If any of its moves could end in our king's position, we are in check
+                for (var enemyMove : enemyMoves) {
+                    if (enemyMove.getEndPosition().equals(kingPosition)) return true;
                 }
             }
         }
 
-        // Get positions of all pieces on the opposing team
-        HashSet<ChessPosition> enemyPositions = new HashSet<>();
-        for (int i = 1; i <= 8; i++) {
-            for (int j = 1; j <= 8; j++) {
-                ChessPosition pos = new ChessPosition(i, j);
-                ChessPiece piece = board.getPiece(pos);
-                // If we found an opposing piece
-                if (piece != null && piece.getTeamColor() != teamColor) {
-                    // Get all the moves this piece could make
-                    Collection<ChessMove> enemyMoves = piece.pieceMoves(board, pos);
-                    // If any of its moves could end in our king's position, we are in check
-                    for (var enemyMove : enemyMoves) {
-                        if (enemyMove.getEndPosition().equals(kingPosition)) return true;
-                    }
-                }
-            }
-        }
         return false;
     }
 
@@ -89,24 +82,17 @@ public class ChessRules {
     }
 
     public boolean isInStalemate(ChessBoard board, TeamColor teamColor) {
-        boolean noValidMoves = true;
-//        // See if there is any position on the board, matching this team's color, with a valid move available
-//        BiPredicate<ChessPiece, TeamColor> condition = (board, pos) -> {
-//            return validMoves(board, );
-//        };
-        // Iterate through the entire board
-        outerLoop:
-        for (int i = 1; i <= 8; i++) {
-            for (int j = 1; j <= 8; j++) {
-                // At each position, check whether there are any valid moves
-                ChessPosition pos = new ChessPosition(i, j);
-                // If there are any valid moves, then n
-                if (validMoves(board, pos) != null) {
-                    noValidMoves = false;
-                    break outerLoop;
-                }
+        // get all pieces and positions
+        var pieces = board.getAllPieces();
+
+        // Check if any of our team's pieces can move
+        for (var pos : pieces.keySet()) {
+            if (board.getPiece(pos).getTeamColor() == teamColor) {
+                var validMoves = validMoves(board, pos);
+                if (validMoves != null && !validMoves.isEmpty()) return false;
             }
         }
-        return noValidMoves;
+
+        return true;
     }
 }

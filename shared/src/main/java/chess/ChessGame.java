@@ -1,7 +1,5 @@
 package chess;
 
-import chess.chessRules.ChessRules;
-
 import java.util.Collection;
 
 /**
@@ -34,6 +32,11 @@ public class ChessGame {
         state.setTurn(team);
     }
 
+    private void advanceTeamTurn() {
+        if (state.getTurn() == TeamColor.WHITE) state.setTurn(TeamColor.BLACK);
+        else state.setTurn(TeamColor.WHITE);
+    }
+
     /**
      * Enum identifying the 2 possible teams in a chess game
      */
@@ -60,16 +63,30 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
         boolean moveIsValid = false;
+
+        // Check that it is the right team's turn
+        TeamColor moveTeam = getBoard().getPiece(move.getStartPosition()).getTeamColor();
+        if (getTeamTurn() != moveTeam) throw new InvalidMoveException("Move out of turn");
+
+        // Get all the valid moves for the piece at the specified start position
+        Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
+        if (validMoves == null || validMoves.isEmpty()) {
+            throw new InvalidMoveException("Position yields no valid moves");
+        }
+
+        // Check the proposed move against every valid move to see if it matches one
+        // If it does, make the move
         for (var validMove : validMoves) {
             if (validMove.equals(move)) {
                 state.getBoard().movePiece(move);
+                advanceTeamTurn();
                 moveIsValid = true;
                 break;
             }
         }
-        if (!moveIsValid) throw new InvalidMoveException();
+        // If not, throw an exception
+        if (!moveIsValid) throw new InvalidMoveException("Move is not valid");
     }
 
     /**

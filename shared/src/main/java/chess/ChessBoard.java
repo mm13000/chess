@@ -58,7 +58,10 @@ public class ChessBoard {
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
-                pieces.put(position, getPiece(position));
+                ChessPiece piece = getPiece(position);
+                if (piece != null) {
+                    pieces.put(position, piece);
+                }
             }
         }
 
@@ -71,8 +74,11 @@ public class ChessBoard {
      */
     public void movePiece(ChessMove move) {
         ChessPiece piece = getPiece(move.getStartPosition());
+        if (move.getPromotionPiece() != null) {
+            piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+        }
         addPiece(move.getEndPosition(), piece);
-        removePiece(move.getEndPosition());
+        removePiece(move.getStartPosition());
     }
 
     /**
