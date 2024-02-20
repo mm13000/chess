@@ -2,7 +2,15 @@ package dataAccess;
 
 import model.AuthData;
 
+import java.util.HashSet;
+
 public class AuthDAOMemory implements AuthDAO {
+    private HashSet<AuthData> auths;
+
+    public AuthDAOMemory() {
+        auths = new HashSet<>();
+    }
+
     @Override
     public AuthData createAuth(String username) {
         return null;
@@ -16,5 +24,10 @@ public class AuthDAOMemory implements AuthDAO {
     @Override
     public void deleteAuth(String authToken) {
 
+    }
+
+    @Override
+    public void clearAuths() {
+        auths.clear();
     }
 }
