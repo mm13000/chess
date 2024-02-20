@@ -7,4 +7,9 @@ public class UserDAOMemory implements UserDAO {
     public void addUser(UserData user) throws DataAccessException {
 
     }
+
+    @Override
+    public UserData getUser(String username) throws DataAccessException {
+        return null;
+    }
 }
