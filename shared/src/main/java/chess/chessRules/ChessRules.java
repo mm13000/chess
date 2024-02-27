@@ -35,7 +35,7 @@ public class ChessRules {
             }
 
             // Return the board to its original state
-            board.movePiece(possibleMove.ReverseMove());
+            board.movePiece(possibleMove.reverseMove());
             board.addPiece(possibleMove.getEndPosition(), endPositionPiece);
         }
 

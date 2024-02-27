@@ -15,11 +15,12 @@ public class PawnCalc implements MoveCalc{
         ChessPiece myPiece = board.getPiece(myPosition);
         boolean forward1Unoccupied = false; // flag for use in for loop below
 
-        // 4 iterations for 4 possible moves (any of them could include promotion):
-        // 0: forward 1 (only if completely unoccupied)
-        // 1: forward 1, left 1 (only if occupied by enemy piece)
-        // 2: forward 1, right 1 (only if occupied by enemy piece)
-        // 3: forward 2 (only if pawn is in its original position and both the position forward 1 and 2 are unoccupied)
+        /* 4 iterations for 4 possible moves (any of them could include promotion):
+         * iteration 0- forward 1 (only if completely unoccupied)
+         * iteration 1- forward 1, left 1 (only if occupied by enemy piece)
+         * iteration 2- forward 1, right 1 (only if occupied by enemy piece)
+         * iteration 3- forward 2 (only if pawn is in its original position and both the position forward 1 and 2 are unoccupied)
+         */
         for (int k = 0; k < 4; k++) {
             int row = myPosition.getRow();
             int col = myPosition.getColumn();
