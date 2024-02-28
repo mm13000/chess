@@ -5,7 +5,9 @@ import dataAccess.DataAccessException;
 import dataAccess.UserDAO;
 import model.AuthData;
 import model.UserData;
+import request.LoginRequest;
 import request.RegisterRequest;
+import result.LoginResult;
 import result.RegisterResult;
 
 public class UserService {
@@ -42,5 +44,28 @@ public class UserService {
         AuthData auth = authDAO.newAuth(request.username());
 
         return new RegisterResult(user.username(), auth.authToken());
+    }
+
+    public LoginResult login(LoginRequest request) throws UnauthorizedException, DataAccessException, BadRequestException {
+        // first check that the request is valid
+        if (request.username() == null || request.password() == null
+                || request.username().isEmpty() || request.password().isEmpty()) {
+            throw new BadRequestException("One of the required fields was null or empty");
+        }
+        // then check that a user exists with the provided username
+        UserData user;
+        try {
+            user = userDAO.getUser(request.username());
+        } catch (DataAccessException e) {
+            throw new UnauthorizedException("No user with that username");
+        }
+        // then check that the password is correct
+        if (!user.password().equals(request.password())) {
+            throw new UnauthorizedException("Incorrect password");
+        }
+        // then create a new Auth for the user and add it to the database
+        AuthData auth = authDAO.newAuth(request.username());
+
+        return new LoginResult(user.username(), auth.authToken());
     }
 }

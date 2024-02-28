@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import dataAccess.AuthDAO;
 import dataAccess.UserDAO;
 import model.UserData;
+import request.LoginRequest;
 import request.RegisterRequest;
+import result.LoginResult;
 import result.RegisterResult;
 import service.*;
 import spark.*;
@@ -20,7 +22,7 @@ public class UserHandler {
         userService.clearUsersAndAuths();
     }
 
-    public Response registerUser(Request httpReq, Response response) {
+    public void registerUser(Request httpReq, Response response) {
         UserData user = new Gson().fromJson(httpReq.body(), UserData.class);
         RegisterRequest request = new RegisterRequest(user.username(), user.password(), user.email());
         RegisterResult result;
@@ -30,20 +32,41 @@ public class UserHandler {
         } catch (BadRequestException e) {
             response.status(400);
             response.body(new Gson().toJson(new ErrorMessage("Error: bad request")));
-            return response;
+            return;
         } catch (NameTakenException e) {
             response.status(403);
             response.body(new Gson().toJson(new ErrorMessage("Error: already taken")));
-            return response;
+            return;
         } catch (Exception e) {
             response.status(500);
             response.body(new Gson().toJson(new ErrorMessage("Error: " + e.getMessage())));
-            return response;
+            return;
         }
 
         // Everything successful. Return the auth token with status code 200
         response.status(200);
         response.body(new Gson().toJson(result));
-        return response;
     }
+
+    public void login(Request httpReq, Response response) {
+        LoginRequest loginRequest = new Gson().fromJson(httpReq.body(), LoginRequest.class);
+        LoginResult result;
+
+        try {
+            result = userService.login(loginRequest);
+        } catch (UnauthorizedException e) {
+            response.status(401);
+            response.body(new Gson().toJson(new ErrorMessage("Error: unauthorized")));
+            return;
+        } catch (Exception e) {
+            response.status(500);
+            response.body(new Gson().toJson(new ErrorMessage("Error: " + e.getMessage())));
+            return;
+        }
+
+        // Everything successful. Return the auth token with status code 200
+        response.status(200);
+        response.body(new Gson().toJson(result));
+    }
+
 }
