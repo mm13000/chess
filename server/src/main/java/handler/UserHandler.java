@@ -5,6 +5,7 @@ import dataAccess.AuthDAO;
 import dataAccess.UserDAO;
 import model.UserData;
 import request.LoginRequest;
+import request.LogoutRequest;
 import request.RegisterRequest;
 import result.LoginResult;
 import result.RegisterResult;
@@ -69,4 +70,19 @@ public class UserHandler {
         response.body(new Gson().toJson(result));
     }
 
+    public void logout(Request httpReq, Response response) {
+        LogoutRequest logoutRequest = new LogoutRequest(httpReq.headers("Authorization"));
+        try {
+            userService.logout(logoutRequest);
+        } catch (UnauthorizedException e) {
+            response.status(401);
+            response.body(new Gson().toJson(new ErrorMessage("Error: unauthorized")));
+            return;
+        } catch (Exception e) {
+            response.status(500);
+            response.body(new Gson().toJson(new ErrorMessage("Error: " + e.getMessage())));
+            return;
+        }
+        response.status(200);
+    }
 }

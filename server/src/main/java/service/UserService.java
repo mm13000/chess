@@ -6,6 +6,7 @@ import dataAccess.UserDAO;
 import model.AuthData;
 import model.UserData;
 import request.LoginRequest;
+import request.LogoutRequest;
 import request.RegisterRequest;
 import result.LoginResult;
 import result.RegisterResult;
@@ -67,5 +68,20 @@ public class UserService {
         AuthData auth = authDAO.newAuth(request.username());
 
         return new LoginResult(user.username(), auth.authToken());
+    }
+
+    public void logout(LogoutRequest request) throws DataAccessException, UnauthorizedException, BadRequestException {
+        // first check that the request is valid
+        if (request.authToken() == null || request.authToken().isEmpty()) {
+            throw new BadRequestException("No authToken provided");
+        }
+        // then check that the authToken is valid
+        try {
+            authDAO.getAuth(request.authToken());
+        } catch (DataAccessException e) {
+            throw new UnauthorizedException("Invalid authToken");
+        }
+        // then delete the authToken from the database
+        authDAO.deleteAuth(request.authToken());
     }
 }

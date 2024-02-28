@@ -29,6 +29,7 @@ public class Server {
         Spark.delete("/db", this::clearDatabase);
         Spark.post("/user", this::registerUser);
         Spark.post("/session", this::login);
+        Spark.delete("/session", this::logout);
 
         // Handle any exceptions left unhandled by handlers/services
 
@@ -55,6 +56,11 @@ public class Server {
 
     private Object login(Request req, Response res) {
         userHandler.login(req, res);
+        return res.body();
+    }
+
+    private Object logout(Request req, Response res) {
+        userHandler.logout(req, res);
         return res.body();
     }
 }

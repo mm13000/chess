@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import request.LoginRequest;
+import request.LogoutRequest;
 import request.RegisterRequest;
 import result.LoginResult;
 import result.RegisterResult;
@@ -140,5 +141,56 @@ class UserServiceTests {
         // Bad request because of empty password
         LoginRequest emptyPassword = new LoginRequest("bob", "");
         Assertions.assertThrows(BadRequestException.class, () -> testUserService.login(emptyPassword));
+    }
+
+    /*
+     * Tests of UserService.logout()
+     */
+
+    @Test
+    void logoutExistingUser() {
+        // First register a user so that the user exists in the server
+        var user = addTestUser();
+        // Then login with that user to get an authToken
+        LoginRequest loginRequest = new LoginRequest(user.username(), user.password());
+        LoginResult loginResult;
+        try {
+            loginResult = testUserService.login(loginRequest);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        // Then send a logout request with that authToken
+        try {
+            testUserService.logout(new LogoutRequest(loginResult.authToken()));
+        } catch (Exception e) {
+            Assertions.fail("Test failed because an exception was thrown: " + e.getMessage());
+        }
+        // Then ensure that the authToken is no longer valid
+        Assertions.assertThrows(DataAccessException.class, () -> testAuthDAO.getAuth(loginResult.authToken()));
+    }
+
+    @Test
+    void logoutNonexistentAuth() {
+        // First register a user so that the user exists in the server
+        var user = addTestUser();
+        // Then login with that user to get an authToken
+        LoginRequest loginRequest = new LoginRequest(user.username(), user.password());
+        try {
+            testUserService.login(loginRequest);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        // Then send a logout request with a nonexistent authToken
+        Assertions.assertThrows(UnauthorizedException.class, () -> testUserService.logout(new LogoutRequest("nonexistentAuthToken")));
+    }
+
+    @Test
+    void logoutBadRequest() {
+        // Bad request because of null authToken
+        LogoutRequest nullAuthToken = new LogoutRequest(null);
+        Assertions.assertThrows(BadRequestException.class, () -> testUserService.logout(nullAuthToken));
+        // Bad request because of empty authToken
+        LogoutRequest emptyAuthToken = new LogoutRequest("");
+        Assertions.assertThrows(BadRequestException.class, () -> testUserService.logout(emptyAuthToken));
     }
 }

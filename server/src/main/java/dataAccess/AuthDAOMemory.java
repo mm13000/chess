@@ -1,10 +1,8 @@
 package dataAccess;
 
 import model.AuthData;
-import model.UserData;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.UUID;
 
 public class AuthDAOMemory implements AuthDAO {
@@ -18,20 +16,20 @@ public class AuthDAOMemory implements AuthDAO {
     public AuthData newAuth(String username) {
         String authToken = UUID.randomUUID().toString();
         AuthData auth = new AuthData(username, authToken);
-        auths.put(username, auth);
+        auths.put(authToken, auth);
         return auth;
     }
 
     @Override
-    public AuthData getAuth(UserData userData) throws DataAccessException {
-        if (!auths.containsKey(userData.username())) {
+    public AuthData getAuth(String authToken) throws DataAccessException {
+        if (!auths.containsKey(authToken)) {
             throw new DataAccessException("Auth not found");
-        } else return auths.get(userData.username());
+        } else return auths.get(authToken);
     }
 
     @Override
-    public void deleteAuth(UserData userData) {
-        auths.remove(userData.username());
+    public void deleteAuth(String authToken) {
+        auths.remove(authToken);
     }
 
     @Override
