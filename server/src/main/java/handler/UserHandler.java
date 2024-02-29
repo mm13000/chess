@@ -2,6 +2,7 @@ package handler;
 
 import com.google.gson.Gson;
 import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
 import dataAccess.UserDAO;
 import model.UserData;
 import request.LoginRequest;
@@ -19,7 +20,7 @@ public class UserHandler {
         this.userService = new UserService(userDAO, authDAO);
     }
 
-    public void clearUsers() {
+    public void clearUsers() throws DataAccessException {
         userService.clearUsersAndAuths();
     }
 

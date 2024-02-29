@@ -1,6 +1,8 @@
 package server;
 
+import com.google.gson.Gson;
 import dataAccess.*;
+import handler.ErrorMessage;
 import handler.GameHandler;
 import handler.UserHandler;
 import spark.*;
@@ -44,10 +46,16 @@ public class Server {
     }
 
     private Object clearDatabase(Request req, Response res) {
-        gameHandler.clearGames();
-        userHandler.clearUsers();
-        res.status(200);
-        return "";
+        try {
+            gameHandler.clearGames();
+            userHandler.clearUsers();
+            res.status(200);
+            res.body("");
+        } catch (DataAccessException ex) {
+            res.status(500);
+            res.body(new Gson().toJson(new ErrorMessage("Error: " + ex.getMessage())));
+        }
+        return res.body();
     }
 
     private Object registerUser(Request req, Response res) {

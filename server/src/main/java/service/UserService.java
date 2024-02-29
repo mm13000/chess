@@ -20,7 +20,7 @@ public class UserService extends Service {
         this.authDAO = authDAO;
     }
 
-    public void clearUsersAndAuths() {
+    public void clearUsersAndAuths() throws DataAccessException {
         userDAO.clearUsers();
         authDAO.clearAuths();
     }

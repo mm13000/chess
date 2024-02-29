@@ -1,6 +1,7 @@
 package service;
 
 import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 
 public class GameService extends Service {
@@ -12,7 +13,7 @@ public class GameService extends Service {
         this.authDAO = authDAO;
     }
 
-    public void clearGames() {
+    public void clearGames() throws DataAccessException {
         gameDAO.clearGames();
     }
 

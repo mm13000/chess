@@ -1,6 +1,7 @@
 package handler;
 
 import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import service.GameService;
 
@@ -11,7 +12,7 @@ public class GameHandler {
         this.gameService = new GameService(gameDAO, authDAO);
     }
 
-    public void clearGames() {
+    public void clearGames() throws DataAccessException {
         gameService.clearGames();
     }
 }
