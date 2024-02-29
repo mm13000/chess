@@ -11,7 +11,7 @@ import request.RegisterRequest;
 import result.LoginResult;
 import result.RegisterResult;
 
-public class UserService {
+public class UserService extends Service {
     private final UserDAO userDAO;
     private final AuthDAO authDAO;
 
@@ -27,8 +27,7 @@ public class UserService {
 
     public RegisterResult registerUser(RegisterRequest request) throws BadRequestException, NameTakenException, DataAccessException {
         // first check that the request is valid
-        if (request.username() == null || request.email() == null || request.password() == null
-                || request.username().isEmpty() || request.password().isEmpty() || request.email().isEmpty()) {
+        if (invalidRequest(request)) {
             throw new BadRequestException("One of the required fields was null or empty");
         }
         // then check that the username is not already taken
@@ -49,8 +48,7 @@ public class UserService {
 
     public LoginResult login(LoginRequest request) throws UnauthorizedException, DataAccessException, BadRequestException {
         // first check that the request is valid
-        if (request.username() == null || request.password() == null
-                || request.username().isEmpty() || request.password().isEmpty()) {
+        if (invalidRequest(request)) {
             throw new BadRequestException("One of the required fields was null or empty");
         }
         // then check that a user exists with the provided username
@@ -71,8 +69,8 @@ public class UserService {
     }
 
     public void logout(LogoutRequest request) throws DataAccessException, UnauthorizedException, BadRequestException {
-        // first check that the request is valid
-        if (request.authToken() == null || request.authToken().isEmpty()) {
+        // first check that the request is valid (required fields have been provided)
+        if (invalidRequest(request)) {
             throw new BadRequestException("No authToken provided");
         }
         // then check that the authToken is valid
