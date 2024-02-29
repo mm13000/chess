@@ -2,9 +2,8 @@ package service;
 
 import dataAccess.AuthDAO;
 import dataAccess.GameDAO;
-import dataAccess.GameDAOMemory;
 
-public class GameService {
+public class GameService extends Service {
     private final GameDAO gameDAO;
     private final AuthDAO authDAO;
 
@@ -16,4 +15,6 @@ public class GameService {
     public void clearGames() {
         gameDAO.clearGames();
     }
+
+
 }
