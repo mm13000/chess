@@ -11,7 +11,7 @@ import request.RegisterRequest;
 import result.LoginResult;
 import result.RegisterResult;
 import service.BadRequestException;
-import service.NameTakenException;
+import service.TakenException;
 import service.UnauthorizedException;
 import service.UserService;
 
@@ -50,7 +50,7 @@ class UserServiceTests {
         RegisterRequest goodRequest = new RegisterRequest("bob1", "1234", "bob1@gmail.com");
         Assertions.assertDoesNotThrow(() -> userService.registerUser(goodRequest),
                 "Unexpected exception was thrown during regular user registration");
-        Assertions.assertThrows(NameTakenException.class, () -> userService.registerUser(goodRequest),
+        Assertions.assertThrows(TakenException.class, () -> userService.registerUser(goodRequest),
                 "registerUser() did not throw NameTaken exception");
     }
 

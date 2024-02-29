@@ -35,7 +35,7 @@ public class UserHandler {
             response.status(400);
             response.body(new Gson().toJson(new ErrorMessage("Error: bad request")));
             return;
-        } catch (NameTakenException e) {
+        } catch (TakenException e) {
             response.status(403);
             response.body(new Gson().toJson(new ErrorMessage("Error: already taken")));
             return;

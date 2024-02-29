@@ -25,7 +25,7 @@ public class UserService extends Service {
         authDAO.clearAuths();
     }
 
-    public RegisterResult registerUser(RegisterRequest request) throws BadRequestException, NameTakenException, DataAccessException {
+    public RegisterResult registerUser(RegisterRequest request) throws BadRequestException, TakenException, DataAccessException {
         // first check that the request is valid
         if (invalidRequest(request)) {
             throw new BadRequestException("One of the required fields was null or empty");
@@ -33,7 +33,7 @@ public class UserService extends Service {
         // then check that the username is not already taken
         try {
             userDAO.getUser(request.username());
-            throw new NameTakenException("Username taken");
+            throw new TakenException("Username taken");
         } catch (DataAccessException ignored) {}
 
         // then create a user object and add that user to the database
