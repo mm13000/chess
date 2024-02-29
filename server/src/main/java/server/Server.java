@@ -30,6 +30,7 @@ public class Server {
         Spark.post("/user", this::registerUser);
         Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
+//        Spark.delete("/session", "authorization", this::logout);
 
         // Handle any exceptions left unhandled by handlers/services
 

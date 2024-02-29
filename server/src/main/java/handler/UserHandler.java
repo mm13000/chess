@@ -84,5 +84,6 @@ public class UserHandler {
             return;
         }
         response.status(200);
+        response.body("");
     }
 }
