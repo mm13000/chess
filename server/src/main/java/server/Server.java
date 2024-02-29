@@ -32,7 +32,9 @@ public class Server {
         Spark.post("/user", this::registerUser);
         Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
-//        Spark.delete("/session", "authorization", this::logout);
+        Spark.post("/game", this::createGame);
+        Spark.put("/game", this::joinGame);
+        Spark.get("/game", this::listGames);
 
         // Handle any exceptions left unhandled by handlers/services
 
@@ -70,6 +72,21 @@ public class Server {
 
     private Object logout(Request req, Response res) {
         userHandler.logout(req, res);
+        return res.body();
+    }
+
+    private Object createGame(Request req, Response res) {
+        gameHandler.createGame(req, res);
+        return res.body();
+    }
+
+    private Object joinGame(Request req, Response res) {
+        gameHandler.joinGame(req, res);
+        return res.body();
+    }
+
+    private Object listGames(Request req, Response res) {
+        gameHandler.listGames(req, res);
         return res.body();
     }
 }
