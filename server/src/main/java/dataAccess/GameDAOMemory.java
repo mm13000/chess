@@ -22,10 +22,11 @@ public class GameDAOMemory implements GameDAO {
     }
 
     @Override
-    public void createGame(String gameName) {
+    public int createGame(String gameName) {
         int id = nextID++;
         GameData game = new GameData(id, null, null, gameName, new ChessGame());
         games.put(id, game);
+        return id;
     }
 
     @Override
