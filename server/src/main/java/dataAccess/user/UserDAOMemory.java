@@ -1,10 +1,9 @@
-package dataAccess;
+package dataAccess.user;
 
-import model.AuthData;
+import dataAccess.DataAccessException;
 import model.UserData;
 
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class UserDAOMemory implements UserDAO {
     private final HashMap<String, UserData> users;
@@ -14,7 +13,7 @@ public class UserDAOMemory implements UserDAO {
     }
 
     @Override
-    public void addUser(UserData user) throws DataAccessException {
+    public void addUser(UserData user) {
         users.put(user.username(), user);
     }
 

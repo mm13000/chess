@@ -1,9 +1,9 @@
 package handler;
 
 import com.google.gson.Gson;
-import dataAccess.AuthDAO;
+import dataAccess.auth.AuthDAO;
 import dataAccess.DataAccessException;
-import dataAccess.GameDAO;
+import dataAccess.game.GameDAO;
 import request.*;
 import result.CreateGameResult;
 import result.ListGamesResult;

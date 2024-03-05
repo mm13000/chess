@@ -1,6 +1,11 @@
 package serviceTests;
 
-import dataAccess.*;
+import dataAccess.auth.AuthDAO;
+import dataAccess.auth.AuthDAOMemory;
+import dataAccess.game.GameDAO;
+import dataAccess.game.GameDAOMemory;
+import dataAccess.user.UserDAO;
+import dataAccess.user.UserDAOMemory;
 import model.AuthData;
 import model.UserData;
 import request.CreateGameRequest;

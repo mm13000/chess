@@ -1,8 +1,8 @@
 package serviceTests;
 
 import chess.ChessGame;
-import dataAccess.AuthDAO;
-import dataAccess.GameDAO;
+import dataAccess.auth.AuthDAO;
+import dataAccess.game.GameDAO;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.Assertions;

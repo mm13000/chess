@@ -1,9 +1,9 @@
 package handler;
 
 import com.google.gson.Gson;
-import dataAccess.AuthDAO;
+import dataAccess.auth.AuthDAO;
 import dataAccess.DataAccessException;
-import dataAccess.UserDAO;
+import dataAccess.user.UserDAO;
 import model.UserData;
 import request.LoginRequest;
 import request.LogoutRequest;
