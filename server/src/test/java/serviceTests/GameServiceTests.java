@@ -12,6 +12,7 @@ import request.CreateGameRequest;
 import request.JoinGameRequest;
 import request.ListGamesRequest;
 import result.CreateGameResult;
+import result.GameHeader;
 import result.ListGamesResult;
 import service.*;
 
@@ -194,13 +195,25 @@ public class GameServiceTests {
         } catch (Exception e) {
             Assertions.fail("Failed because exception was thrown: " + e.getMessage());
         }
-        // Attempt to join game as Black player
+        // Attempt to join game as Black player (player playing themselves)
         request = new JoinGameRequest(auth.authToken(), ChessGame.TeamColor.BLACK, gameID);
         try {
             gameService.joinGame(request);
         } catch (Exception e) {
             Assertions.fail("Failed because exception was thrown: " + e.getMessage());
         }
+
+        // Check that the game has been updated in the database
+        ListGamesResult listGamesResult = null;
+        try {
+            listGamesResult = gameService.listGames(new ListGamesRequest(auth.authToken()));
+        } catch (Exception e) {
+            Assertions.fail("Failed because exception was thrown: " + e.getMessage());
+        }
+        ArrayList<GameHeader> gameList = new ArrayList<>(listGamesResult.games());
+        GameHeader game = gameList.getFirst();
+        Assertions.assertEquals(game.whiteUsername(), user.username(), "White player was not set correctly");
+        Assertions.assertEquals(game.blackUsername(), user.username(), "Black player was not set correctly");
     }
 
     // TODO: need to add similar tests for the following scenarios once I know how it should behave:
@@ -257,6 +270,17 @@ public class GameServiceTests {
         // Then have the second user try to join as the White player
         JoinGameRequest request2 = new JoinGameRequest(auth2.authToken(), ChessGame.TeamColor.WHITE, gameID);
         Assertions.assertThrows(TakenException.class, () -> gameService.joinGame(request2));
+
+        // Check that the first user is still the White player
+        ListGamesResult listGamesResult = null;
+        try {
+            listGamesResult = gameService.listGames(new ListGamesRequest(auth1.authToken()));
+        } catch (Exception e) {
+            Assertions.fail("Failed because exception was thrown: " + e.getMessage());
+        }
+        ArrayList<GameHeader> gameList = new ArrayList<>(listGamesResult.games());
+        GameHeader game = gameList.getFirst();
+        Assertions.assertEquals(game.whiteUsername(), user1.username(), "White username incorrectly changed");
     }
 
     @Test
