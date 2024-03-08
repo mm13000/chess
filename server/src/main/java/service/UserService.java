@@ -21,8 +21,8 @@ public class UserService extends Service {
     }
 
     public void clearUsersAndAuths() throws DataAccessException {
-        userDAO.clearUsers();
         authDAO.clearAuths();
+        userDAO.clearUsers();
     }
 
     public RegisterResult registerUser(RegisterRequest request) throws BadRequestException, TakenException, DataAccessException {
