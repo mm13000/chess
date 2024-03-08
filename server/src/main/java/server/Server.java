@@ -4,24 +4,53 @@ import com.google.gson.Gson;
 import dataAccess.*;
 import dataAccess.auth.AuthDAO;
 import dataAccess.auth.AuthDAOMemory;
+import dataAccess.auth.AuthDAOmySQL;
 import dataAccess.game.GameDAO;
 import dataAccess.game.GameDAOMemory;
+import dataAccess.game.GameDAOmySQL;
 import dataAccess.user.UserDAO;
 import dataAccess.user.UserDAOMemory;
+import dataAccess.user.UserDAOmySQL;
 import handler.ErrorMessage;
 import handler.GameHandler;
 import handler.UserHandler;
 import spark.*;
 
+import java.sql.SQLException;
+
 public class Server {
     private final GameHandler gameHandler;
     private final UserHandler userHandler;
+    private enum databaseType {
+        MEMORY,
+        MYSQL
+    }
 
     public Server() {
-        // Create the DAOs that will be shared by everyone
-        AuthDAO authDAO = new AuthDAOMemory();
-        GameDAO gameDAO = new GameDAOMemory();
-        UserDAO userDAO = new UserDAOMemory();
+        // Create DAOs that will be shared by everyone
+        AuthDAO authDAO;
+        GameDAO gameDAO;
+        UserDAO userDAO;
+
+        // Initialize DAOs and setup database as needed:
+        databaseType dbtype = databaseType.MYSQL; // CHANGE THIS TO CHANGE DATABASE TYPE
+        switch (dbtype) {
+            case MEMORY:
+                authDAO = new AuthDAOMemory();
+                gameDAO = new GameDAOMemory();
+                userDAO = new UserDAOMemory();
+                break;
+            case MYSQL:
+                authDAO = new AuthDAOmySQL();
+                gameDAO = new GameDAOmySQL();
+                userDAO = new UserDAOmySQL();
+                setupDatabase();
+                break;
+            case null, default:
+                authDAO = new AuthDAOMemory();
+                gameDAO = new GameDAOMemory();
+                userDAO = new UserDAOMemory();
+        }
 
         // Create handler objects using the DAOs
         gameHandler = new GameHandler(gameDAO, authDAO);
@@ -94,5 +123,51 @@ public class Server {
     private Object listGames(Request req, Response res) {
         gameHandler.listGames(req, res);
         return res.body();
+    }
+
+    private final String[] createStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                username VARCHAR(255) NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL,
+                PRIMARY KEY (username)
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS games (
+                gameID INT PRIMARY KEY AUTO_INCREMENT,
+                whiteUsername VARCHAR(255),
+                blackUsername VARCHAR(255),
+                gameName VARCHAR(255) UNIQUE NOT NULL,
+                game_data TEXT NOT NULL,
+                FOREIGN KEY(whiteUsername) REFERENCES users(username),
+                FOREIGN KEY(blackUsername) REFERENCES users(username)
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS auths (
+                username VARCHAR(255) NOT NULL,
+                authToken VARCHAR(255) NOT NULL,
+                FOREIGN KEY(username) REFERENCES users(username)
+            );
+            """
+    };
+
+    private void setupDatabase() {
+        try {
+            DatabaseManager.createDatabase();
+        } catch (DataAccessException ex) {
+            throw new RuntimeException("Database not successfully created. Exception thrown: " + ex.getMessage());
+        }
+        try (var conn = DatabaseManager.getConnection()) {
+            for (var statement : createStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (DataAccessException | SQLException ex) {
+            throw new RuntimeException("Unable to setup databse. Exception thrown: " + ex.getMessage());
+        }
     }
 }
