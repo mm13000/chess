@@ -5,6 +5,7 @@ import dataAccess.DataAccessException;
 import dataAccess.user.UserDAO;
 import model.AuthData;
 import model.UserData;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import request.LoginRequest;
 import request.LogoutRequest;
 import request.RegisterRequest;
@@ -37,7 +38,9 @@ public class UserService extends Service {
         } catch (DataAccessException ignored) {}
 
         // then create a user object and add that user to the database
-        UserData user = new UserData(request.username(), request.password(), request.email());
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String hashedPassword = encoder.encode(request.password());
+        UserData user = new UserData(request.username(), hashedPassword, request.email());
         userDAO.addUser(user);
 
         // Then create a new Auth for the user and add it to the database
@@ -59,7 +62,8 @@ public class UserService extends Service {
             throw new UnauthorizedException("No user with that username");
         }
         // then check that the password is correct
-        if (!user.password().equals(request.password())) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        if (!encoder.matches(request.password(), user.password())) {
             throw new UnauthorizedException("Incorrect password");
         }
         // then create a new Auth for the user and add it to the database
