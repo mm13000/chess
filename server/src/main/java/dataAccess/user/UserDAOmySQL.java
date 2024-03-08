@@ -21,7 +21,9 @@ public class UserDAOmySQL implements UserDAO {
                 statement.setString(1, user.username());
                 statement.setString(2, user.password());
                 statement.setString(3, user.email());
-                statement.executeUpdate();
+                if (statement.executeUpdate() == 0) {
+                    throw new DataAccessException("User data not saved");
+                }
             }
         } catch (SQLException ex) {
             throw new DataAccessException(ex.getMessage());
@@ -46,7 +48,7 @@ public class UserDAOmySQL implements UserDAO {
                     user = new UserData(rs.getString(1),
                             rs.getString(2), rs.getString(3));
                 } else {
-                    throw new DataAccessException("username not found in database");
+                    throw new DataAccessException("Username not found in database");
                 }
                 return user;
             }
@@ -57,16 +59,10 @@ public class UserDAOmySQL implements UserDAO {
 
     @Override
     public void clearUsers() throws DataAccessException {
-
-    }
-
-    public static void main(String[] args) {
-        UserData user = new UserData("kaitlyn", "mypassword", "michael@me.com");
-        UserDAO userDAO = new UserDAOmySQL();
-        try {
-            System.out.println(userDAO.getUser(user.username()));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        try (Connection conn = DatabaseManager.getConnection()) {
+            conn.prepareStatement("DELETE FROM users").executeUpdate();
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage());
         }
     }
 }
