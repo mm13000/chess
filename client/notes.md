@@ -1,6 +1,8 @@
 # Client UI
 
-Essentially three different "UIs"
+Essentially three different "UIs" - prelogin, postlogin, and gameplay
+
+Each one basically just has a REPL loop.
 
 # Server Facade
 Should be in client package.
@@ -148,4 +150,30 @@ public class EscapeSequences {
 }
 ```
 
+## Drawing the chess board
+
 We are given sample code for drawing a Tic Tac Toe board
+
+Can choose to use unicode characters to represent chess pieces:
+- White king - `\u2654`
+- White queen - `\u2655`
+- White rook - `\u2656`
+- White bishop - `\u2657`
+- White knight - `\u2658`
+- White pawn - `\u2659`
+- Black king - `\u265A`
+- Black queen - `\u265B`
+- Black rook - `\u265C`
+- Black bishop - `\u265D`
+- Black knight - `\u265E`
+- Black pawn - `\u265F`
+
+These are also given in the sample code. 
+Challenge is that the chess piece symbols wider than regular characters.
+The sample code fixes this by using a adifferent "empty" character that are "em spaces"
+
+IF using chess piece characters:
+- Set terminal font in IntelliJ to 'Monospace'
+- File -> Settings -> Editor -> Color Scheme -> Console Font -> Monospaced
+- The "Em Space" unicode character is the same width as chess piece characters
+- Use a combination fo regular spaces adn em spaces to make things align properly
