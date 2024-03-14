@@ -1,11 +1,19 @@
 package dataAccessTests;
 
+import dataAccess.auth.AuthDAO;
+import dataAccess.auth.AuthDAOmySQL;
+import dataAccess.game.GameDAO;
+import dataAccess.game.GameDAOmySQL;
+import dataAccess.user.UserDAO;
+import dataAccess.user.UserDAOmySQL;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
 
 class GameDAOTest {
+    private final GameDAO gameDAO = new GameDAOmySQL();
+    private final AuthDAO authDAO = new AuthDAOmySQL();
+    private final UserDAO userDAO = new UserDAOmySQL();
 
     @BeforeEach
     void setUp() {
@@ -16,7 +24,7 @@ class GameDAOTest {
     }
 
     @Test
-    void createGame() {
+    void createGameSuccess() {
     }
 
     @Test

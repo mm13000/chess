@@ -2,18 +2,26 @@ package dataAccess.auth;
 
 import dataAccess.DataAccessException;
 import dataAccess.DatabaseManager;
+import dataAccess.UUIDGenerator;
 import model.AuthData;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.UUID;
 
 public class AuthDAOmySQL implements AuthDAO {
+    private final UUIDGenerator uuidGenerator;
+    public AuthDAOmySQL() {
+        this.uuidGenerator = new UUIDGenerator();
+    }
+    public AuthDAOmySQL(UUIDGenerator uuidGenerator) {
+        // For testing purposes, allow passing in 'mock' UUIDgenerator that returns a known UUID
+        this.uuidGenerator = uuidGenerator;
+    }
     @Override
     public AuthData newAuth(String username) throws DataAccessException {
-        String authToken = UUID.randomUUID().toString();
+        String authToken = uuidGenerator.generateUUID().toString();
         AuthData auth = new AuthData(username, authToken);
 
         try (Connection conn = DatabaseManager.getConnection()) {

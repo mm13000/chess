@@ -148,7 +148,7 @@ public class Server {
             """
             CREATE TABLE IF NOT EXISTS auths (
                 username VARCHAR(255) NOT NULL,
-                authToken VARCHAR(255) NOT NULL,
+                authToken VARCHAR(255) NOT NULL UNIQUE KEY,
                 FOREIGN KEY(username) REFERENCES users(username)
             );
             """

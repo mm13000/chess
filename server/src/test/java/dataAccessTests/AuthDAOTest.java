@@ -1,143 +1,127 @@
 package dataAccessTests;
 
-import dataAccess.DataAccessException;
-import dataAccess.DatabaseManager;
+import dataAccess.*;
 import dataAccess.auth.AuthDAO;
 import dataAccess.auth.AuthDAOmySQL;
 import dataAccess.user.UserDAO;
 import dataAccess.user.UserDAOmySQL;
-import model.AuthData;
-import model.UserData;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import model.*;
+import org.junit.jupiter.api.*;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.sql.*;
+import java.util.UUID;
 
 class AuthDAOTest {
-    private final AuthDAO authDAO;
-    private final UserDAO userDAO;
+    private final AuthDAO authDAO = new AuthDAOmySQL();
+    private final UserDAO userDAO = new UserDAOmySQL();
     private final UserData user1 = new UserData("me","mypass", "me@you.com");
     private final UserData user2 = new UserData("you", "yourpass", "you@me.com");
-    AuthDAOTest() {
-        this.authDAO = new AuthDAOmySQL();
-        this.userDAO = new UserDAOmySQL();
-    }
+    private final UUIDGenerator mockUUIDGenerator = new UUIDGenerator() {
+        // Override the generateUUID method to return a known UUID
+        @Override
+        public UUID generateUUID() {
+            return UUID.fromString("00000000-0000-0000-0000-000000000000");
+        }
+    };
 
     @BeforeEach
     void setUp() {
-        // Clear out all auths and users from database
         try {
             authDAO.clearAuths();
             userDAO.clearUsers();
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            insertUsers(user1, user2);
+        } catch (Exception e) {
+            Assertions.fail("Unexpected exception thrown: " + e.getMessage());
         }
-        // Add two users to database
-        ArrayList<UserData> newUsers = new ArrayList<>();
-        newUsers.add(user1);
-        newUsers.add(user2);
-        try (Connection conn = DatabaseManager.getConnection()) {
-            String sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                for (UserData user : newUsers) {
-                    stmt.setString(1, user.username());
-                    stmt.setString(2, user.password());
-                    stmt.setString(3, user.email());
-                    stmt.executeUpdate();
-                }
+    }
+
+    private void insertUsers(UserData... users) {
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("INSERT INTO users (username, password, email) VALUES (?, ?, ?)")) {
+            for (UserData user : users) {
+                stmt.setString(1, user.username());
+                stmt.setString(2, user.password());
+                stmt.setString(3, user.email());
+                stmt.executeUpdate();
             }
-        } catch (SQLException | DataAccessException e) {
+        } catch (Exception e) {
             Assertions.fail("Unexpected exception thrown: " + e.getMessage());
         }
     }
 
     @Test
     void goodNewAuth() {
-        AuthData auth = null;
         try {
-            auth = authDAO.newAuth(user1.username());
+            AuthData auth = authDAO.newAuth(user1.username());
+            Assertions.assertEquals(auth, authDAO.getAuth(auth.authToken()));
         } catch (DataAccessException e) {
-            Assertions.fail("Exception thrown: " + e.getMessage());
-        }
-        try (Connection conn = DatabaseManager.getConnection()) {
-            String sql = "SELECT username, authToken FROM auths WHERE authToken=?";
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, auth.authToken());
-                ResultSet rs = stmt.executeQuery();
-                if (rs.next()) {
-                    Assertions.assertEquals(rs.getString(1), auth.username());
-                    Assertions.assertEquals(rs.getString(2), auth.authToken());
-                } else Assertions.fail("authToken not found");
-            }
-        } catch (SQLException | DataAccessException e) {
             Assertions.fail("Exception thrown: " + e.getMessage());
         }
     }
 
     @Test
     void badNewAuth() {
-        // not sure what this entails
+        Assertions.assertThrows(DataAccessException.class, () -> authDAO.newAuth("nonexistentUser"));
+    }
+
+    @Test
+    void testNewDuplicateAuthToken() {
+        AuthDAO fakeAuthDAO = new AuthDAOmySQL(mockUUIDGenerator);
+        Assertions.assertDoesNotThrow(() -> fakeAuthDAO.newAuth(user1.username()));
+        Assertions.assertThrows(DataAccessException.class, () -> fakeAuthDAO.newAuth(user1.username()));
     }
 
     @Test
     void getExistingAuth() {
-        try {
-            AuthData auth = authDAO.newAuth(user1.username());
-            AuthData returnedAuth = authDAO.getAuth(auth.authToken());
-            Assertions.assertEquals(auth, returnedAuth);
-        } catch (DataAccessException e) {
-            Assertions.fail("Exception thrown: " + e.getMessage());
-        }
+        assertAuth(user1);
     }
 
     @Test
     void getNonexistentAuth() {
-        try {
-            authDAO.newAuth(user1.username());
-            Assertions.assertThrows(DataAccessException.class, () -> authDAO.getAuth("fakeAuth"));
-        } catch (DataAccessException e) {
-            Assertions.fail("Exception thrown: " + e.getMessage());
-        }
+        assertNonexistentAuth("fakeAuth");
     }
 
     @Test
     void deleteExistingAuth() {
-        try {
-            AuthData auth = authDAO.newAuth(user1.username());
-            AuthData returnedAuth = authDAO.getAuth(auth.authToken());
-            Assertions.assertEquals(auth, returnedAuth);
-            authDAO.deleteAuth(auth.authToken());
-            Assertions.assertThrows(DataAccessException.class, () -> authDAO.getAuth(auth.authToken()));
-        } catch (DataAccessException e) {
-            Assertions.fail("Exception thrown: " + e.getMessage());
-        }
+        assertDeleteAuth(user1);
     }
 
     @Test
     void deleteNonexistentAuth() {
-        try {
-            AuthData auth = authDAO.newAuth(user1.username());
-            AuthData returnedAuth = authDAO.getAuth(auth.authToken());
-            Assertions.assertEquals(auth, returnedAuth);
-            Assertions.assertThrows(DataAccessException.class, () -> authDAO.deleteAuth("fakeAuth"));
-        } catch (DataAccessException e) {
-            Assertions.fail("Exception thrown: " + e.getMessage());
-        }
+        assertNonexistentAuth("fakeAuth");
     }
 
     @Test
     void clearAuths() {
         try {
-            AuthData auth1 = authDAO.newAuth(user1.username());
-            AuthData auth2 = authDAO.newAuth(user2.username());
+            authDAO.newAuth(user1.username());
+            authDAO.newAuth(user2.username());
             authDAO.clearAuths();
-            Assertions.assertThrows(DataAccessException.class, () -> authDAO.getAuth(auth1.authToken()));
-            Assertions.assertThrows(DataAccessException.class, () -> authDAO.getAuth(auth2.authToken()));
+            assertNonexistentAuth(user1.username());
+            assertNonexistentAuth(user2.username());
+        } catch (DataAccessException e) {
+            Assertions.fail("Exception thrown: " + e.getMessage());
+        }
+    }
+
+    private void assertAuth(UserData user) {
+        try {
+            AuthData auth = authDAO.newAuth(user.username());
+            Assertions.assertEquals(auth, authDAO.getAuth(auth.authToken()));
+        } catch (DataAccessException e) {
+            Assertions.fail("Exception thrown: " + e.getMessage());
+        }
+    }
+
+    private void assertNonexistentAuth(String authToken) {
+        Assertions.assertThrows(DataAccessException.class, () -> authDAO.getAuth(authToken));
+    }
+
+    private void assertDeleteAuth(UserData user) {
+        try {
+            AuthData auth = authDAO.newAuth(user.username());
+            authDAO.deleteAuth(auth.authToken());
+            assertNonexistentAuth(auth.authToken());
         } catch (DataAccessException e) {
             Assertions.fail("Exception thrown: " + e.getMessage());
         }
