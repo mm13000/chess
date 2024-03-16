@@ -216,12 +216,6 @@ public class GameServiceTests {
         Assertions.assertEquals(game.blackUsername(), user.username(), "Black player was not set correctly");
     }
 
-    // TODO: need to add similar tests for the following scenarios once I know how it should behave:
-    // a user trying to join as their own opponent, a user joining as both player and observer
-
-    // TODO: Need to test that the games actually get updated in the database
-    // Test that they show up as the right player. Test that they show as observer... whatever that means
-
     @Test
     public void joinGameValidObserver() {
         // Register a user, log them in, and create a game
