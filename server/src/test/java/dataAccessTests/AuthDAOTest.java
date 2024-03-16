@@ -26,6 +26,7 @@ class AuthDAOTest {
 
     @BeforeEach
     void setUp() {
+        // Clear the database
         try {
             authDAO.clearAuths();
             userDAO.clearUsers();
