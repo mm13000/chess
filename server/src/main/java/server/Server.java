@@ -11,6 +11,7 @@ import dataAccess.game.GameDAOmySQL;
 import dataAccess.user.UserDAO;
 import dataAccess.user.UserDAOMemory;
 import dataAccess.user.UserDAOmySQL;
+import exception.ResponseException;
 import handler.ErrorMessage;
 import handler.GameHandler;
 import handler.UserHandler;
@@ -57,6 +58,12 @@ public class Server {
         userHandler = new UserHandler(userDAO, authDAO);
     }
 
+    public static void main(String[] args) {
+        Server server = new Server();
+        int port = server.run(8080);
+        System.out.println("Started HTTP server on " + port);
+    }
+
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
@@ -72,6 +79,7 @@ public class Server {
         Spark.get("/game", this::listGames);
 
         // Handle any exceptions left unhandled by handlers/services
+        Spark.exception(ResponseException.class, this::exceptionHandler);
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -82,7 +90,20 @@ public class Server {
         Spark.awaitStop();
     }
 
-    private Object clearDatabase(Request req, Response res) {
+    private void exceptionHandler(ResponseException e, Request req, Response res) {
+        res.status(e.StatusCode().code);
+        String message = switch (e.StatusCode()) {
+            case BAD_REQUEST -> "Error: bad request";
+            case UNAUTHORIZED -> "Error: unauthorized";
+            case TAKEN -> "Error: already taken";
+            default -> "Error: " + e.getMessage();
+        };
+        record ErrorMessage(String errorMessage) {}
+        res.body(new Gson().toJson(new ErrorMessage(message)));
+    }
+
+    private Object clearDatabase(Request req, Response res) throws ResponseException {
+        // FIXME: Implement new exception handling method
         try {
             gameHandler.clearGames();
             userHandler.clearUsers();
@@ -95,32 +116,32 @@ public class Server {
         return res.body();
     }
 
-    private Object registerUser(Request req, Response res) {
+    private Object registerUser(Request req, Response res) throws ResponseException {
         userHandler.registerUser(req, res);
         return res.body();
     }
 
-    private Object login(Request req, Response res) {
+    private Object login(Request req, Response res) throws ResponseException {
         userHandler.login(req, res);
         return res.body();
     }
 
-    private Object logout(Request req, Response res) {
+    private Object logout(Request req, Response res) throws ResponseException {
         userHandler.logout(req, res);
         return res.body();
     }
 
-    private Object createGame(Request req, Response res) {
+    private Object createGame(Request req, Response res) throws ResponseException {
         gameHandler.createGame(req, res);
         return res.body();
     }
 
-    private Object joinGame(Request req, Response res) {
+    private Object joinGame(Request req, Response res) throws ResponseException {
         gameHandler.joinGame(req, res);
         return res.body();
     }
 
-    private Object listGames(Request req, Response res) {
+    private Object listGames(Request req, Response res) throws ResponseException {
         gameHandler.listGames(req, res);
         return res.body();
     }
