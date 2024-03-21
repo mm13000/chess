@@ -3,6 +3,8 @@ package dataAccessTests;
 import dataAccess.*;
 import dataAccess.auth.AuthDAO;
 import dataAccess.auth.AuthDAOmySQL;
+import dataAccess.game.GameDAO;
+import dataAccess.game.GameDAOmySQL;
 import dataAccess.user.UserDAO;
 import dataAccess.user.UserDAOmySQL;
 import model.*;
@@ -13,7 +15,6 @@ import java.util.UUID;
 
 class AuthDAOTest {
     private final AuthDAO authDAO = new AuthDAOmySQL();
-    private final UserDAO userDAO = new UserDAOmySQL();
     private final UserData user1 = new UserData("me","mypass", "me@you.com");
     private final UserData user2 = new UserData("you", "yourpass", "you@me.com");
     private final UUIDGenerator mockUUIDGenerator = new UUIDGenerator() {
@@ -25,14 +26,18 @@ class AuthDAOTest {
     };
 
     @BeforeEach
-    void setUp() {
-        // Clear the database
+    void setup() {
+        // Clear the server before each test
+        AuthDAO authDAO = new AuthDAOmySQL();
+        UserDAO userDAO = new UserDAOmySQL();
+        GameDAO gameDAO = new GameDAOmySQL();
         try {
+            gameDAO.clearGames();
             authDAO.clearAuths();
             userDAO.clearUsers();
             insertUsers(user1, user2);
-        } catch (Exception e) {
-            Assertions.fail("Unexpected exception thrown: " + e.getMessage());
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Exception thrown when clearing the database: " + e.getMessage());
         }
     }
 

@@ -49,7 +49,7 @@ public class ServerFacadeTests {
             authDAO.clearAuths();
             userDAO.clearUsers();
         } catch (DataAccessException e) {
-            throw new RuntimeException();
+            throw new RuntimeException("Exception thrown when clearing the database: " + e.getMessage());
         }
     }
 
