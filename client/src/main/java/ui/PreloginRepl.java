@@ -7,6 +7,7 @@ import result.LoginResult;
 import result.RegisterResult;
 import serverFacade.ServerFacade;
 import status.StatusCode;
+import static ui.EscapeSequences.*;
 
 import java.util.Scanner;
 
@@ -20,9 +21,9 @@ public class PreloginRepl extends Repl {
 
     public void run() {
         // display welcome message
-        System.out.print(EscapeSequences.SET_TEXT_COLOR_MAGENTA + EscapeSequences.SET_TEXT_BOLD);
-        System.out.println(EscapeSequences.WHITE_KING + " Welcome to Chess!" + EscapeSequences.WHITE_KING + "\n");
-        System.out.print(EscapeSequences.RESET_TEXT_COLOR + EscapeSequences.RESET_TEXT_BOLD_FAINT);
+        System.out.print(SET_TEXT_COLOR_MAGENTA + SET_TEXT_BOLD);
+        System.out.println(WHITE_KING + " Welcome to Chess!" + WHITE_KING + "\n");
+        System.out.print(RESET_TEXT_COLOR + RESET_TEXT_BOLD_FAINT);
 
         // display available commands
         help();
