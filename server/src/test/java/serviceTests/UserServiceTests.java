@@ -3,6 +3,7 @@ package serviceTests;
 import dataAccess.*;
 import dataAccess.auth.AuthDAO;
 import dataAccess.user.UserDAO;
+import exception.ResponseException;
 import model.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,9 +13,6 @@ import request.LogoutRequest;
 import request.RegisterRequest;
 import result.LoginResult;
 import result.RegisterResult;
-import service.BadRequestException;
-import service.TakenException;
-import service.UnauthorizedException;
 import service.UserService;
 
 import java.util.UUID;
@@ -52,8 +50,12 @@ class UserServiceTests {
         RegisterRequest goodRequest = new RegisterRequest("bob1", "1234", "bob1@gmail.com");
         Assertions.assertDoesNotThrow(() -> userService.registerUser(goodRequest),
                 "Unexpected exception was thrown during regular user registration");
-        Assertions.assertThrows(TakenException.class, () -> userService.registerUser(goodRequest),
-                "registerUser() did not throw NameTaken exception");
+        try {
+            userService.registerUser(goodRequest);
+            Assertions.fail("registerUser() did not throw NameTaken exception");
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.TAKEN, e.StatusCode());
+        }
     }
 
     @Test
@@ -73,8 +75,12 @@ class UserServiceTests {
     @Test
     void registerUserBadRequest() {
         RegisterRequest badRequest = new RegisterRequest("bob1", null, "bob1@gmail.com");
-        Assertions.assertThrows(BadRequestException.class, () -> userService.registerUser(badRequest),
-                "registerUser() did not throw a BadRequestException when given null password");
+        try {
+            userService.registerUser(badRequest);
+            Assertions.fail("registerUser() did not throw a ResponseException when given null password");
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.StatusCode());
+        }
     }
 
     /*
@@ -103,8 +109,13 @@ class UserServiceTests {
         var user = testFactory.registerUser(new UserData("bob","1234","bob@me.com"));
         // Then send a login request with the wrong password
         LoginRequest loginRequest = new LoginRequest(user.username(), "wrongPassword");
-        // an "UnauthorizedException" should be thrown
-        Assertions.assertThrows(UnauthorizedException.class, () -> userService.login(loginRequest));
+        // a ResponseException should be thrown
+        try {
+            userService.login(loginRequest);
+            Assertions.fail("Did not throw unauthorized exception.");
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.StatusCode());
+        }
     }
 
     @Test
@@ -113,24 +124,52 @@ class UserServiceTests {
         var user = testFactory.registerUser(new UserData("bob","1234","bob@me.com"));
         // Then send a login request for a nonexistent user
         LoginRequest loginRequest = new LoginRequest("mallory", user.password());
-        // an "UnauthorizedException" should be thrown
-        Assertions.assertThrows(UnauthorizedException.class, () -> userService.login(loginRequest));
+        // a ResponseException should be thrown
+        try {
+            userService.login(loginRequest);
+            Assertions.fail();
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.StatusCode());
+        }
     }
 
     @Test
     void LoginBadRequest() {
         // Bad request because of null username
         LoginRequest nullUsername = new LoginRequest(null, "1234");
-        Assertions.assertThrows(BadRequestException.class, () -> userService.login(nullUsername));
+        try {
+            userService.login(nullUsername);
+            Assertions.fail();
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.StatusCode());
+        }
+
         // Bad request because of null password
         LoginRequest nullPassword = new LoginRequest("bob", null);
-        Assertions.assertThrows(BadRequestException.class, () -> userService.login(nullPassword));
+        try {
+            userService.login(nullPassword);
+            Assertions.fail();
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.StatusCode());
+        }
+
         // Bad request because of empty username
         LoginRequest emptyUsername = new LoginRequest("", "1234");
-        Assertions.assertThrows(BadRequestException.class, () -> userService.login(emptyUsername));
+        try {
+            userService.login(emptyUsername);
+            Assertions.fail();
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.StatusCode());
+        }
+
         // Bad request because of empty password
         LoginRequest emptyPassword = new LoginRequest("bob", "");
-        Assertions.assertThrows(BadRequestException.class, () -> userService.login(emptyPassword));
+        try {
+            userService.login(emptyPassword);
+            Assertions.fail();
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.StatusCode());
+        }
     }
 
     /*
@@ -162,7 +201,12 @@ class UserServiceTests {
     @Test
     void logoutNonexistentAuth() {
         // Try logging someone out when there is no one yet stored in the database
-        Assertions.assertThrows(UnauthorizedException.class, () -> userService.logout(new LogoutRequest("1122")));
+        try {
+            userService.logout(new LogoutRequest("1122"));
+            Assertions.fail();
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.StatusCode());
+        }
         // First register a user so that the user exists in the server
         var user = testFactory.registerUser(new UserData("bob","1234","bob@me.com"));
         // Then login with that user to get an authToken
@@ -173,16 +217,31 @@ class UserServiceTests {
             throw new RuntimeException(e);
         }
         // Then send a logout request with a nonexistent authToken
-        Assertions.assertThrows(UnauthorizedException.class, () -> userService.logout(new LogoutRequest("nonexistentAuthToken")));
+        try {
+            userService.logout(new LogoutRequest("nonexistentAuthToken"));
+            Assertions.fail();
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.StatusCode());
+        }
     }
 
     @Test
     void logoutBadRequest() {
         // Bad request because of null authToken
         LogoutRequest nullAuthToken = new LogoutRequest(null);
-        Assertions.assertThrows(BadRequestException.class, () -> userService.logout(nullAuthToken));
+        try {
+            userService.logout(nullAuthToken);
+            Assertions.fail();
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.StatusCode());
+        }
         // Bad request because of empty authToken
         LogoutRequest emptyAuthToken = new LogoutRequest("");
-        Assertions.assertThrows(BadRequestException.class, () -> userService.logout(emptyAuthToken));
+        try {
+            userService.logout(emptyAuthToken);
+            Assertions.fail();
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.StatusCode());
+        }
     }
 }

@@ -12,7 +12,6 @@ import dataAccess.user.UserDAO;
 import dataAccess.user.UserDAOMemory;
 import dataAccess.user.UserDAOmySQL;
 import exception.ResponseException;
-import handler.ErrorMessage;
 import handler.GameHandler;
 import handler.UserHandler;
 import spark.*;
@@ -90,7 +89,7 @@ public class Server {
         Spark.awaitStop();
     }
 
-    private void exceptionHandler(ResponseException e, Request req, Response res) {
+    private Object exceptionHandler(ResponseException e, Request req, Response res) {
         res.status(e.StatusCode().code);
         String message = switch (e.StatusCode()) {
             case BAD_REQUEST -> "Error: bad request";
@@ -98,21 +97,16 @@ public class Server {
             case TAKEN -> "Error: already taken";
             default -> "Error: " + e.getMessage();
         };
-        record ErrorMessage(String errorMessage) {}
+        record ErrorMessage(String message) {}
         res.body(new Gson().toJson(new ErrorMessage(message)));
+        return res.body();
     }
 
     private Object clearDatabase(Request req, Response res) throws ResponseException {
-        // FIXME: Implement new exception handling method
-        try {
-            gameHandler.clearGames();
-            userHandler.clearUsers();
-            res.status(200);
-            res.body("");
-        } catch (DataAccessException ex) {
-            res.status(500);
-            res.body(new Gson().toJson(new ErrorMessage("Error: " + ex.getMessage())));
-        }
+        gameHandler.clearGames();
+        userHandler.clearUsers();
+        res.status(200);
+        res.body("");
         return res.body();
     }
 

@@ -8,7 +8,6 @@ import result.CreateGameResult;
 import result.ListGamesResult;
 import result.LoginResult;
 import result.RegisterResult;
-import status.StatusCode;
 
 import java.io.*;
 import java.net.*;
@@ -84,14 +83,14 @@ public class ServerFacade {
             HttpURLConnection connection = getHttpURLConnection(method, path, authToken, body);
             return readResponse(connection); // return body or throw ResponseException based on status code
         } catch (IOException | URISyntaxException e) {
-            throw new ResponseException(StatusCode.ERROR, e.getMessage());
+            throw new ResponseException(ResponseException.StatusCode.ERROR, e.getMessage());
         }
     }
 
     private static String readResponse(HttpURLConnection connection) throws IOException, ResponseException {
         int responseCode = connection.getResponseCode();
         StringBuilder stringBuilder = new StringBuilder();
-        if (responseCode == StatusCode.OK.code) {
+        if (responseCode == ResponseException.StatusCode.OK.code) {
             try (InputStream responseBody = connection.getInputStream();
                  BufferedReader reader = new BufferedReader(new InputStreamReader(responseBody))) {
                 String line;
@@ -101,11 +100,11 @@ public class ServerFacade {
             }
             return stringBuilder.toString();
         } else {
-            StatusCode statusCode = switch (responseCode) {
-                case 400 -> StatusCode.BAD_REQUEST;
-                case 401 -> StatusCode.UNAUTHORIZED;
-                case 403 -> StatusCode.TAKEN;
-                default -> StatusCode.ERROR;
+            ResponseException.StatusCode statusCode = switch (responseCode) {
+                case 400 -> ResponseException.StatusCode.BAD_REQUEST;
+                case 401 -> ResponseException.StatusCode.UNAUTHORIZED;
+                case 403 -> ResponseException.StatusCode.TAKEN;
+                default -> ResponseException.StatusCode.ERROR;
             };
             try (InputStream responseBody = connection.getErrorStream();
                  BufferedReader reader = new BufferedReader(new InputStreamReader(responseBody))) {

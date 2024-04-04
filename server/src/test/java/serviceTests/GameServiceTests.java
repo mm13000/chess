@@ -3,6 +3,7 @@ package serviceTests;
 import chess.ChessGame;
 import dataAccess.auth.AuthDAO;
 import dataAccess.game.GameDAO;
+import exception.ResponseException;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.Assertions;
@@ -91,31 +92,55 @@ public class GameServiceTests {
         CreateGameRequest badRequest3 = new CreateGameRequest(null, "New game");
         CreateGameRequest badRequest4 = new CreateGameRequest("", "New game");
 
-        // Assert that in each case a BadRequestException is thrown
-        Assertions.assertThrows(BadRequestException.class, () -> gameService.createGame(badRequest1),
-                "BadRequestException not thrown with null gameName");
-        Assertions.assertThrows(BadRequestException.class, () -> gameService.createGame(badRequest2),
-                "BadRequestException not thrown with empty gameName");
-        Assertions.assertThrows(BadRequestException.class, () -> gameService.createGame(badRequest3),
-                "BadRequestException not thrown with null authToken");
-        Assertions.assertThrows(BadRequestException.class, () -> gameService.createGame(badRequest4),
-                "BadRequestException not thrown with empty authToken");
+        // Assert that in each case a ResponseException is thrown
+        try {
+            gameService.createGame(badRequest1);
+            Assertions.fail("ResponseException not thrown with null gameName");
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.StatusCode());
+        }
+        try {
+            gameService.createGame(badRequest2);
+            Assertions.fail("ResponseException not thrown with empty gameName");
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.StatusCode());
+        }
+        try {
+            gameService.createGame(badRequest3);
+            Assertions.fail("ResponseException not thrown with null authToken");
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.StatusCode());
+        }
+        try {
+            gameService.createGame(badRequest4);
+            Assertions.fail("ResponseException not thrown with empty authToken");
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.StatusCode());
+        }
     }
 
     @Test
     public void createGameUnauthorized() {
         // Attempt to create a game with no valid users in database
         CreateGameRequest request = new CreateGameRequest("fakeAuth", "Try Me!");
-        Assertions.assertThrows(UnauthorizedException.class, () -> gameService.createGame(request),
-                "UnauthorizedException not thrown with no registered users");
+        try {
+            gameService.createGame(request);
+            Assertions.fail("ResponseException not thrown with no registered users");
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.StatusCode());
+        }
 
         // Register a user and log them in
         UserData user = testFactory.registerUser(new UserData("bob","1234", "bob@me.com"));
         testFactory.loginUser(user);
 
         // Attempt to create a game using fake authToken
-        Assertions.assertThrows(UnauthorizedException.class, () -> gameService.createGame(request),
-                "UnauthorizedException not thrown with invalid Auth Token");
+        try {
+            gameService.createGame(request);
+            Assertions.fail("ResponseException not thrown with invalid Auth Token");
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.StatusCode());
+        }
     }
 
     /*
@@ -173,8 +198,12 @@ public class GameServiceTests {
 
         // Attempt to list games using a fake auth token
         ListGamesRequest request = new ListGamesRequest("invalidAuth");
-        Assertions.assertThrows(UnauthorizedException.class, () -> gameService.listGames(request),
-                "Did not throw UnauthorizedException when given invalid authToken");
+        try {
+            gameService.listGames(request);
+            Assertions.fail("Did not throw Exception when given invalid authToken");
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.StatusCode());
+        }
     }
 
     /*
@@ -241,8 +270,12 @@ public class GameServiceTests {
 
         // Attempt to join a game that does not exist
         JoinGameRequest request = new JoinGameRequest(auth.authToken(), null, gameID + 1);
-        Assertions.assertThrows(BadRequestException.class, () -> gameService.joinGame(request),
-                "Did not throw BadRequestException when given invalid gameID");
+        try {
+            gameService.joinGame(request);
+            Assertions.fail("No exception thrown with invalid gameID");
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.StatusCode());
+        }
     }
 
     @Test
@@ -263,7 +296,12 @@ public class GameServiceTests {
         }
         // Then have the second user try to join as the White player
         JoinGameRequest request2 = new JoinGameRequest(auth2.authToken(), ChessGame.TeamColor.WHITE, gameID);
-        Assertions.assertThrows(TakenException.class, () -> gameService.joinGame(request2));
+        try {
+            gameService.joinGame(request2);
+            Assertions.fail();
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.TAKEN, e.StatusCode());
+        }
 
         // Check that the first user is still the White player
         ListGamesResult listGamesResult = null;
@@ -286,8 +324,12 @@ public class GameServiceTests {
 
         // Attempt to join a game using a bogus authToken
         JoinGameRequest request = new JoinGameRequest("invalidAuth", null, gameID);
-        Assertions.assertThrows(UnauthorizedException.class, () -> gameService.joinGame(request),
-                "Did not throw UnauthorizedException when given invalid authToken");
+        try {
+            gameService.joinGame(request);
+            Assertions.fail("Did not throw Exception when given invalid authToken");
+        } catch (ResponseException e) {
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.StatusCode());
+        }
     }
 
 }
