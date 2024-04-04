@@ -6,7 +6,7 @@ import request.RegisterRequest;
 import result.LoginResult;
 import result.RegisterResult;
 import serverFacade.ServerFacade;
-import status.StatusCode;
+
 import static ui.EscapeSequences.*;
 
 import java.util.Scanner;
@@ -65,7 +65,7 @@ public class PreloginRepl extends Repl {
         try {
             loginResult = serverFacade.login(loginRequest);
         } catch (ResponseException e) {
-            if (e.StatusCode() == StatusCode.UNAUTHORIZED) {
+            if (e.StatusCode() == ResponseException.StatusCode.UNAUTHORIZED) {
                 printErrorMessage("Invalid username or password. You may try again.");
             } else {
                 printErrorMessage("Login attempt was unsuccessful. You may try again.");

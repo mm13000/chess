@@ -1,24 +1,26 @@
 package ui;
 
+import chess.ChessGame;
 import exception.ResponseException;
+import request.CreateGameRequest;
+import request.JoinGameRequest;
 import request.ListGamesRequest;
 import request.LogoutRequest;
+import result.CreateGameResult;
 import result.GameHeader;
 import result.ListGamesResult;
 import serverFacade.ServerFacade;
-import status.StatusCode;
-import static ui.EscapeSequences.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class PostloginRepl extends Repl {
     private String authToken = null;
     private final ServerFacade serverFacade;
+    private final GameplayRepl gameplayRepl;
+    private HashMap<Integer, Integer> gameDisplayOrder = new HashMap<>();
     public PostloginRepl(ServerFacade serverFacade) {
         this.serverFacade = serverFacade;
+        this.gameplayRepl = new GameplayRepl(serverFacade);
     }
 
     public void run(String authToken) {
@@ -27,6 +29,19 @@ public class PostloginRepl extends Repl {
 
         // display available commands
         help();
+
+        // Initialization of gameDisplayOrder map
+        // FIXME: organize this part better
+        ListGamesRequest listGamesRequest = new ListGamesRequest(authToken);
+        ListGamesResult listGamesResult = null;
+        try {
+            listGamesResult = this.serverFacade.listGames(listGamesRequest);
+        } catch (ResponseException ignored) {}
+        // Assign new numbers for each of the games in the list (starting at 1)
+        int gameNum = 1;
+        for (GameHeader gameHeader : listGamesResult.games()) {
+            gameDisplayOrder.put(gameHeader.gameID(), gameNum++);
+        }
 
         // Main REPL loop. Stay in this loop until the user uses the "logout" command to return to the previous repl.
         boolean loop = true;
@@ -53,7 +68,7 @@ public class PostloginRepl extends Repl {
         // Print out all available actions with descriptions of what they do
         System.out.println("Available commands:");
         System.out.println("help        display available commands");
-        System.out.println("logout");
+        System.out.println("logout      logout");
         System.out.println("create      create a new chess game");
         System.out.println("list        list available chess games");
         System.out.println("join        join a chess game");
@@ -66,20 +81,37 @@ public class PostloginRepl extends Repl {
         try {
             serverFacade.logout(logoutRequest);
         } catch (ResponseException e) {
-            if (e.StatusCode() == StatusCode.UNAUTHORIZED) {
-                printErrorMessage("Unauthorized logout error.");
+            if (e.StatusCode() == ResponseException.StatusCode.UNAUTHORIZED) {
+                printErrorMessage("Server threw an unauthorized logout error.");
             } else {
-                printErrorMessage("Error attempting to logout.");
+                printErrorMessage("Error in attempting to logout.");
             }
             return;
         }
 
         // Notify user of successful logout
-        printNotification("\nYou have been logged out.");
+        printNotification("You have been logged out.");
     }
 
     private void createGame() {
-        // Prompt user for game name
+        // Prompt user for game request information
+        CreateGameRequest createGameRequest = getCreateGameInfo();
+
+        // Attempt to create the game in the server
+        CreateGameResult createGameResult;
+        try {
+            createGameResult = serverFacade.createGame(createGameRequest);
+        } catch (ResponseException e) {
+            if (e.StatusCode() == ResponseException.StatusCode.BAD_REQUEST) {
+                printErrorMessage("Game name or number invalid. Please try again.");
+            } else {
+                printErrorMessage("Error creating game. You may try again");
+            }
+            return;
+        }
+
+        // Notify successful completion, including new game ID
+        printNotification("Your new chess game '" + createGameRequest.gameName() + "' has been created!");
     }
 
     private void listGames() {
@@ -89,12 +121,18 @@ public class PostloginRepl extends Repl {
         try {
             listGamesResult = serverFacade.listGames(listGamesRequest);
         } catch (ResponseException e) {
-            if (e.StatusCode() == StatusCode.UNAUTHORIZED) {
+            if (e.StatusCode() == ResponseException.StatusCode.UNAUTHORIZED) {
                 printErrorMessage("Unauthorized list games request.");
             } else {
                 printErrorMessage("Error attempting to list games.");
             }
             return;
+        }
+
+        // Assign new numbers for each of the games in the list (starting at 1)
+        int gameNum = 1;
+        for (GameHeader gameHeader : listGamesResult.games()) {
+            gameDisplayOrder.put(gameHeader.gameID(), gameNum++);
         }
 
         // Display a list of available games, or a message that no games are available
@@ -106,20 +144,103 @@ public class PostloginRepl extends Repl {
     }
 
     private void joinGame() {
+        // Prompt user for JoinGameRequest info
+        JoinGameRequest joinGameRequest = getJoinGameInfo();
 
+        // Attempt to join the game on the server
+        try {
+            serverFacade.joinGame(joinGameRequest);
+        } catch (ResponseException e) {
+            if (e.StatusCode() == ResponseException.StatusCode.TAKEN) {
+                printErrorMessage("The team color requested is already taken by another player. You may try again.");
+            } else {
+                printErrorMessage("Error when attempting to join game. You may try again.");
+            }
+            return;
+        }
+
+        // Transition to the GamePlay UI
+        gameplayRepl.run(authToken);
     }
 
     private void observeGame() {
+        // Prompt user for JoinGameRequest info
+        JoinGameRequest joinGameRequest = getObserveGameInfo();
 
+        // Attempt to join the game on the server
+        try {
+            serverFacade.joinGame(joinGameRequest);
+        } catch (ResponseException e) {
+            printErrorMessage("Error when attempting to observe game. You may try again.");
+            return;
+        }
+
+        // Transition to the GamePlay UI
+        gameplayRepl.run(authToken);
     }
 
     /*
      * Helper methods
      */
 
+    private CreateGameRequest getCreateGameInfo() {
+        System.out.print("Enter game name: ");
+        String gameName = new Scanner(System.in).nextLine();
+        return new CreateGameRequest(authToken, gameName);
+    }
+
+    private int getGameID() {
+        // Get game number:
+        System.out.print("Enter Game Number: ");
+        int gameNum = new Scanner(System.in).nextInt();
+        int gameID = 0;
+        for (int key : gameDisplayOrder.keySet()) {
+            if (gameDisplayOrder.get(key).equals(gameNum)) {
+                gameID = key;
+            }
+        }
+        return gameID;
+    }
+
+    private JoinGameRequest getJoinGameInfo() {
+        // Get game ID:
+        int gameID = getGameID();
+
+        // Get team color
+        ChessGame.TeamColor playerColor = null;
+        boolean validColorEntered = false;
+        while (!validColorEntered) {
+            System.out.print("Enter desired team color (white/black): ");
+            String color = new Scanner(System.in).next();
+            switch (color.toLowerCase()) {
+                case "white":
+                    playerColor = ChessGame.TeamColor.WHITE;
+                    validColorEntered = true;
+                    break;
+                case "black":
+                    playerColor = ChessGame.TeamColor.BLACK;
+                    validColorEntered = true;
+                    break;
+                default:
+                    printErrorMessage("Invalid team color. Please try again.");
+            }
+        }
+
+        // return JoinGameRequest
+        return new JoinGameRequest(authToken, playerColor, gameID);
+    }
+
+    private JoinGameRequest getObserveGameInfo() {
+        // Get game ID:
+        int gameID = getGameID();
+
+        // Return the appropriate JoinGameRequest
+        return new JoinGameRequest(authToken, null, gameID);
+    }
+
     private void printGameList(List<GameHeader> gameList) {
         // Names of columns
-        List<String> colNames = Arrays.asList("Game ID", "Game Name", "White Player", "Black Player");
+        List<String> colNames = Arrays.asList("Game", "Game Name", "White Player", "Black Player"); // TODO: update in commented-out code below
 
         // calculate column widths (maximums of each column)
         List<Integer> colWidths = new ArrayList<>();
@@ -127,9 +248,8 @@ public class PostloginRepl extends Repl {
             colWidths.add(colName.length());
         }
         for (GameHeader gameHeader : gameList) {
-            colWidths.set(0, Math.max(colWidths.get(0), String.valueOf(gameHeader.gameID()).length()));
+            // TODO: update in commented-out code below (removed a line here)
             colWidths.set(1, Math.max(colWidths.get(1), gameHeader.gameName().length()));
-
             int whiteUsernameLength = gameHeader.whiteUsername() == null ? 0 : gameHeader.whiteUsername().length();
             colWidths.set(2, Math.max(colWidths.get(2), whiteUsernameLength));
             int blackUsernameLength = gameHeader.blackUsername() == null ? 0 : gameHeader.blackUsername().length();
@@ -152,9 +272,10 @@ public class PostloginRepl extends Repl {
 
         // Print the body of the table, and a final separator at the end to close the table
         for (GameHeader game : gameList) {
+            int gameNum = gameDisplayOrder.get(game.gameID()); // TODO: update in commented-out code below
             String whiteUsername = game.whiteUsername() == null ? "" : game.whiteUsername();
             String blackUsername = game.blackUsername() == null ? "" : game.blackUsername();
-            System.out.format(formattedRow, game.gameID(), game.gameName(), whiteUsername, blackUsername);
+            System.out.format(formattedRow, gameNum, game.gameName(), whiteUsername, blackUsername); // TODO: update in commented-out code below
         }
         System.out.println(tableSeparator(colWidths));
     }
