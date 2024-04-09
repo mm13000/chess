@@ -1,11 +1,9 @@
 package exception;
 
-import org.jetbrains.annotations.NotNull;
-
 public class ResponseException extends Exception {
     final private StatusCode statusCode;
 
-    public ResponseException(@NotNull StatusCode statusCode, String message) {
+    public ResponseException(StatusCode statusCode, String message) {
         super(message);
         this.statusCode = statusCode;
     }
