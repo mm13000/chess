@@ -1,6 +1,6 @@
 import ui.PreloginRepl;
 
-public class Main {
+public class Client {
     public static void main(String[] args) {
         int serverPort = 8080;
         String serverDomain = "http://localhost";
