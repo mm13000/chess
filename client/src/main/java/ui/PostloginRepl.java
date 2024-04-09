@@ -17,7 +17,7 @@ public class PostloginRepl extends Repl {
     private String authToken = null;
     private final ServerFacade serverFacade;
     private final GameplayRepl gameplayRepl;
-    private HashMap<Integer, Integer> gameDisplayOrder = new HashMap<>();
+    private final HashMap<Integer, Integer> gameDisplayOrder = new HashMap<>();
     public PostloginRepl(ServerFacade serverFacade) {
         this.serverFacade = serverFacade;
         this.gameplayRepl = new GameplayRepl(serverFacade);
@@ -27,11 +27,14 @@ public class PostloginRepl extends Repl {
         this.authToken = authToken;
         printNotification("\nYou are logged in.\n");
 
-        // display available commands
-        help();
+        initializeGameDisplayMap(authToken); // initialize gameDisplayOrder Map
 
-        // Initialization of gameDisplayOrder map
-        // FIXME: organize this part better
+        // Client REPL loop. Stay in this loop until the user uses the "logout" command to return to the previous repl.
+        help();
+        replLoop();
+    }
+
+    private void initializeGameDisplayMap(String authToken) {
         ListGamesRequest listGamesRequest = new ListGamesRequest(authToken);
         ListGamesResult listGamesResult = null;
         try {
@@ -42,18 +45,16 @@ public class PostloginRepl extends Repl {
         for (GameHeader gameHeader : listGamesResult.games()) {
             gameDisplayOrder.put(gameHeader.gameID(), gameNum++);
         }
+    }
 
-        // Main REPL loop. Stay in this loop until the user uses the "logout" command to return to the previous repl.
+    private void replLoop() {
         boolean loop = true;
         while (loop) {
-            // get user command from the terminal
-            System.out.print("\nEnter command: ");
-            String userCommand = new Scanner(System.in).next();
-            System.out.print("\n");
-
-            // Call the appropriate method
-            switch (userCommand) {
-                case "logout" -> loop = false;
+            switch (getCommand()) {
+                case "logout" -> {
+                    loop = false;
+                    logout();
+                }
                 case "create" -> createGame();
                 case "list" -> listGames();
                 case "join" -> joinGame();
@@ -61,7 +62,6 @@ public class PostloginRepl extends Repl {
                 default -> help();
             }
         }
-        logout();
     }
 
     private void help() {
@@ -161,6 +161,7 @@ public class PostloginRepl extends Repl {
 
         // Transition to the GamePlay UI
         gameplayRepl.run(authToken);
+        help();
     }
 
     private void observeGame() {
@@ -177,6 +178,7 @@ public class PostloginRepl extends Repl {
 
         // Transition to the GamePlay UI
         gameplayRepl.run(authToken);
+        help();
     }
 
     /*
@@ -240,7 +242,7 @@ public class PostloginRepl extends Repl {
 
     private void printGameList(List<GameHeader> gameList) {
         // Names of columns
-        List<String> colNames = Arrays.asList("Game", "Game Name", "White Player", "Black Player"); // TODO: update in commented-out code below
+        List<String> colNames = Arrays.asList("Game", "Game Name", "White Player", "Black Player");
 
         // calculate column widths (maximums of each column)
         List<Integer> colWidths = new ArrayList<>();
@@ -248,7 +250,6 @@ public class PostloginRepl extends Repl {
             colWidths.add(colName.length());
         }
         for (GameHeader gameHeader : gameList) {
-            // TODO: update in commented-out code below (removed a line here)
             colWidths.set(1, Math.max(colWidths.get(1), gameHeader.gameName().length()));
             int whiteUsernameLength = gameHeader.whiteUsername() == null ? 0 : gameHeader.whiteUsername().length();
             colWidths.set(2, Math.max(colWidths.get(2), whiteUsernameLength));
@@ -272,10 +273,10 @@ public class PostloginRepl extends Repl {
 
         // Print the body of the table, and a final separator at the end to close the table
         for (GameHeader game : gameList) {
-            int gameNum = gameDisplayOrder.get(game.gameID()); // TODO: update in commented-out code below
+            int gameNum = gameDisplayOrder.get(game.gameID());
             String whiteUsername = game.whiteUsername() == null ? "" : game.whiteUsername();
             String blackUsername = game.blackUsername() == null ? "" : game.blackUsername();
-            System.out.format(formattedRow, gameNum, game.gameName(), whiteUsername, blackUsername); // TODO: update in commented-out code below
+            System.out.format(formattedRow, gameNum, game.gameName(), whiteUsername, blackUsername);
         }
         System.out.println(tableSeparator(colWidths));
     }
@@ -290,58 +291,5 @@ public class PostloginRepl extends Repl {
         }
         return separator.toString();
     }
-
-//    private List<Integer> calculateColumnWidths(List<String> colNames, List<GameHeader> gameList) {
-//        List<Integer> colWidths = new ArrayList<>();
-//        for (String colName : colNames) {
-//            colWidths.add(colName.length());
-//        }
-//        for (GameHeader gameHeader : gameList) {
-//            colWidths.set(0, Math.max(colWidths.get(0), String.valueOf(gameHeader.gameID()).length()));
-//            colWidths.set(1, Math.max(colWidths.get(1), gameHeader.gameName().length()));
-//            int whiteUsernameLength = gameHeader.whiteUsername() == null ? 0 : gameHeader.whiteUsername().length();
-//            colWidths.set(2, Math.max(colWidths.get(2), whiteUsernameLength));
-//            int blackUsernameLength = gameHeader.blackUsername() == null ? 0 : gameHeader.blackUsername().length();
-//            colWidths.set(3, Math.max(colWidths.get(3), blackUsernameLength));
-//        }
-//        return colWidths;
-//    }
-//
-//    private String buildTableFormat(List<Integer> colWidths) {
-//        StringBuilder builder = new StringBuilder("|");
-//        for (int colWidth : colWidths) {
-//            builder.append(" %-").append(colWidth).append("s |");
-//        }
-//        builder.append("%n");
-//        return builder.toString();
-//    }
-//
-//    private String formatTableRow(List<Integer> colWidths) {
-//        StringBuilder separator = new StringBuilder("+");
-//        for (Integer colWidth : colWidths) {
-//            int width = colWidth + 2;
-//            separator.append("-".repeat(Math.max(0, width))).append("+");
-//        }
-//        return separator.toString();
-//    }
-//
-//    private void printGameList(List<GameHeader> gameList) {
-//        List<String> colNames = Arrays.asList("Game ID", "Game Name", "White Player", "Black Player");
-//        List<Integer> colWidths = calculateColumnWidths(colNames, gameList);
-//
-//        String formattedRow = buildTableFormat(colWidths);
-//        String tableSeparator = formatTableRow(colWidths);
-//
-//        System.out.println(tableSeparator);
-//        System.out.format(formattedRow, colNames.get(0), colNames.get(1), colNames.get(2), colNames.get(3));
-//        System.out.println(tableSeparator);
-//
-//        for (GameHeader game : gameList) {
-//            String whiteUsername = game.whiteUsername() == null ? "" : game.whiteUsername();
-//            String blackUsername = game.blackUsername() == null ? "" : game.blackUsername();
-//            System.out.format(formattedRow, game.gameID(), game.gameName(), whiteUsername, blackUsername);
-//        }
-//        System.out.println(tableSeparator);
-//    }
 
 }
