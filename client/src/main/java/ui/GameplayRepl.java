@@ -13,6 +13,7 @@ public class GameplayRepl extends Repl {
     private final ServerFacade serverFacade;
     private String authToken;
     private ChessBoard board;
+    private TeamColor playerTeam = null;
     public GameplayRepl(ServerFacade serverFacade) {
         this.serverFacade = serverFacade;
     }
@@ -28,12 +29,60 @@ public class GameplayRepl extends Repl {
         board = new ChessBoard();
         board.resetBoard();
 
-        // Print the board in both orientations
-        printGameBoard(TeamColor.BLACK);
-        printGameBoard(TeamColor.WHITE);
-
-        // Notify user of return to log in state
+        // Client REPL loop. Stay in this loop until user submits "leave" command"
+        drawBoard();
+        help();
+        replLoop();
         printNotification("You have left gameplay.");
+    }
+
+    private void replLoop() {
+        boolean loop = true;
+        while (loop) {
+            switch (getCommand()) {
+                case "redraw" -> drawBoard();
+                case "leave" -> {
+                    loop = false;
+                    leaveGame();
+                }
+                case "move" -> {
+                    if (playerTeam != null) makeMove();
+                    else help();
+                }
+                case "resign" -> resign();
+                case "highlight" -> displayLegalMoves();
+                default -> help();
+            }
+        }
+    }
+
+    private void help() {
+        // Print out all available actions with descriptions of what they do
+        System.out.println("Available commands:");
+        System.out.println("help        display available commands");
+        System.out.println("redraw      redraw the chess board");
+        System.out.println("leave       leave the game");
+        if (playerTeam != null) System.out.println("move        move a piece");
+        System.out.println("resign      forfeit the game");
+        System.out.println("show        display all legal moves for a piece");
+    }
+
+    private void makeMove() {
+
+    }
+
+    private void resign() {
+
+    }
+
+    private void displayLegalMoves() {
+        // Prompt the user for the piece for which they want to display the valid moves (coordinates?)
+        // Re-prompt if needed, if the location chosen doesn't have a valid piece
+
+    }
+
+    private void leaveGame() {
+
     }
 
     /*
@@ -44,7 +93,9 @@ public class GameplayRepl extends Repl {
      * Helper methods specific to printing the board
      */
 
-    private void printGameBoard(TeamColor orientation) {
+    private void drawBoard() {
+        TeamColor orientation = playerTeam == null ? TeamColor.WHITE : playerTeam;
+
         // Print top row (letters)
         printBoardHeader(orientation);
 
