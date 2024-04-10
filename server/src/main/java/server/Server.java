@@ -28,9 +28,9 @@ public class Server {
 
     public Server() {
         // Create DAOs that will be shared by everyone
-        AuthDAO authDAO;
-        GameDAO gameDAO;
-        UserDAO userDAO;
+        AuthDAO authDAO = null;
+        GameDAO gameDAO = null;
+        UserDAO userDAO = null;
 
         // Initialize DAOs and setup database as needed:
         databaseType dbtype = databaseType.MYSQL; // CHANGE THIS TO CHANGE DATABASE TYPE
@@ -46,10 +46,6 @@ public class Server {
                 userDAO = new UserDAOmySQL();
                 setupDatabase();
                 break;
-            case null, default:
-                authDAO = new AuthDAOMemory();
-                gameDAO = new GameDAOMemory();
-                userDAO = new UserDAOMemory();
         }
 
         // Create handler objects using the DAOs
@@ -64,9 +60,12 @@ public class Server {
     }
 
     public int run(int desiredPort) {
+        // Setup
         Spark.port(desiredPort);
+        Spark.staticFiles.location("web"); // Website setup
 
-        Spark.staticFiles.location("web");
+        // Register websocket upgrade endpoint
+        Spark.webSocket("/connect", WebSocketServer.class);
 
         // Register endpoints
         Spark.delete("/db", this::clearDatabase);
