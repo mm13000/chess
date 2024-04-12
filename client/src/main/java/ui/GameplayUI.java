@@ -46,7 +46,7 @@ public class GameplayUI extends UI implements GameplayHandler {
         boolean loop = true;
         while (loop) {
             switch (getCommand()) {
-                case "redraw" -> drawBoard();
+                case "redraw" -> drawBoard(null);
                 case "leave" -> {
                     loop = false;
                     leaveGame();
@@ -59,7 +59,7 @@ public class GameplayUI extends UI implements GameplayHandler {
                     if (playerTeam != null) resign();
                     else help();
                 }
-                case "highlight" -> displayLegalMoves();
+                case "show" -> displayLegalMoves();
                 default -> help();
             }
         }
@@ -81,7 +81,7 @@ public class GameplayUI extends UI implements GameplayHandler {
         // The board is updated to reflect the result of the move,
         // and the board automatically updates on all the clients involved in the game
         ChessMove move = getMove();
-        webSocketFacade.makeMove(gameID, move, playerTeam);
+        webSocketFacade.makeMove(gameID, move);
     }
 
     private void resign() {
@@ -98,15 +98,23 @@ public class GameplayUI extends UI implements GameplayHandler {
         // The selected piece’s current square and all squares it can legally move to are highlighted.
         // This is a local operation and has no effect on remote users’ screens.
 
-        // Prompt the user for the piece for which they want to display the valid moves (coordinates?)
-        // Re-prompt if needed, if the location chosen doesn't have a valid piece
+        // Get the location of the piece for which we want to display valid moves
+        System.out.print("Enter the position of the piece (e.g. 'E5'): ");
+        ChessPosition piecePosition = getPosition();
 
+        // Get a collection of valid moves for that piece
+        Collection<ChessMove> validMoves = game.validMoves(piecePosition);
+        Collection<ChessPosition> highlightPositions = new HashSet<>();
+        for (var move : validMoves) {
+            highlightPositions.add(move.getEndPosition());
+        }
+        drawBoard(highlightPositions);
     }
 
     private void leaveGame() {
         // Removes the user from the game (whether they are playing or observing the game).
         // The client transitions back to the Post-Login UI.
-        webSocketFacade.leaveGame(gameID, playerTeam);
+        webSocketFacade.leaveGame(gameID);
     }
 
     /*
@@ -191,7 +199,7 @@ public class GameplayUI extends UI implements GameplayHandler {
     @Override
     public void updateGame(ChessGame game) {
         this.game = game;
-        drawBoard();
+        drawBoard(null);
         System.out.print("Enter command: ");
     }
 
@@ -211,7 +219,7 @@ public class GameplayUI extends UI implements GameplayHandler {
      * Board Printing methods
      */
 
-    private void drawBoard() {
+    private void drawBoard(Collection<ChessPosition> highlightedPositions) {
         TeamColor orientation = playerTeam == null ? TeamColor.WHITE : playerTeam;
 
         // Print top row (letters)
@@ -219,7 +227,7 @@ public class GameplayUI extends UI implements GameplayHandler {
         printBoardHeader(orientation);
 
         // Print main body of the board
-        printBoardRows(orientation);
+        printBoardRows(orientation, highlightedPositions);
 
         // Print bottom row (letters)
         printBoardHeader(orientation);
@@ -245,13 +253,13 @@ public class GameplayUI extends UI implements GameplayHandler {
         System.out.print("\n");
     }
 
-    private void printBoardRows(TeamColor orientation) {
+    private void printBoardRows(TeamColor orientation, Collection<ChessPosition> highlightedPositions) {
         // Print the board rows in the order appropriate depending on chess board orientation
         List<Integer> rows = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8);
         if (orientation.equals(TeamColor.WHITE)) rows = rows.reversed();
         for (Integer row : rows) {
             printBoardRowNumber(row);
-            printBoardRow(row, orientation);
+            printBoardRow(row, orientation, highlightedPositions);
             printBoardRowNumber(row);
             System.out.print("\n");
         }
@@ -263,17 +271,19 @@ public class GameplayUI extends UI implements GameplayHandler {
         System.out.print(RESET_TEXT_BOLD_FAINT + RESET_TEXT_COLOR + SET_BG_COLOR_WHITE);
     }
 
-    private void printBoardRow(Integer row, TeamColor orientation) {
+    private void printBoardRow(Integer row, TeamColor orientation, Collection<ChessPosition> highlightedPositions) {
         // Print a row of the board (just the pieces)
         List<Integer> cols = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8);
         if (orientation.equals(TeamColor.BLACK)) cols = cols.reversed();
         for (Integer col : cols) {
-            ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row, col));
-            printBoardPiece(row, col, piece);
+            ChessPosition position = new ChessPosition(row, col);
+            ChessPiece piece = game.getBoard().getPiece(position);
+            boolean highlight = highlightedPositions != null && highlightedPositions.contains(position);
+            printBoardPiece(row, col, piece, highlight);
         }
     }
 
-    private void printBoardPiece(Integer row, Integer col, ChessPiece piece) {
+    private void printBoardPiece(Integer row, Integer col, ChessPiece piece, boolean highlight) {
         // Get the character for the appropriate piece
         TeamColor team = null;
         if (piece != null) team = piece.getTeamColor();
@@ -289,6 +299,7 @@ public class GameplayUI extends UI implements GameplayHandler {
         // Set the background color and text color appropriately
         if (piece != null) System.out.print(team.equals(TeamColor.WHITE) ? SET_TEXT_COLOR_WHITE : SET_TEXT_COLOR_BLACK);
         System.out.print((row + col) % 2 == 0 ? SET_TEXT_COLOR_DARK_GREY : SET_BG_COLOR_LIGHT_GREY);
+        if (highlight) System.out.print(SET_BG_COLOR_YELLOW);
 
         // Print the piece
         printBoardCell(pieceChar);

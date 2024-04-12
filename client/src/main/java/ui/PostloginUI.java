@@ -113,6 +113,7 @@ public class PostloginUI extends UI {
 
         // Notify successful completion, including new game ID
         printNotification("Your new chess game '" + createGameRequest.gameName() + "' has been created!");
+        listGames();
     }
 
     private void listGames() {

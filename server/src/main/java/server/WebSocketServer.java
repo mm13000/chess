@@ -110,10 +110,12 @@ public class WebSocketServer {
         if (gameData == null) return;
 
         // Check that the player who is attempting to make the move is in fact the player whose turn it is.
-        if (command.getPlayerColor() == null) {
+        TeamColor playerColor = getPlayerColor(username, gameData);
+        if (playerColor == null) {
             sendMessage(session, new ErrorMessage("Error: game is over"));
+            return;
         }
-        if (command.getPlayerColor() != gameData.game().getPlayerTurn()) {
+        if (playerColor != gameData.game().getPlayerTurn()) {
             sendMessage(session, new ErrorMessage("Error: not your turn"));
             return;
         }
@@ -199,7 +201,7 @@ public class WebSocketServer {
         if (gameData == null) return;
 
         // Remove user from game in database, if they are a player (not an observer)
-        TeamColor team = command.getPlayerColor();
+        TeamColor team = getPlayerColor(username, gameData);
         if (team != null) {
             if (team.equals(TeamColor.WHITE)) {
                 gameData = new GameData(gameData.gameID(), null,
@@ -238,6 +240,13 @@ public class WebSocketServer {
         return gameData;
     }
 
+    private TeamColor getPlayerColor(String username, GameData gameData) {
+        if (username.equals(gameData.blackUsername()) || username.equals(gameData.whiteUsername())) {
+            return username.equals(gameData.whiteUsername()) ? TeamColor.WHITE : TeamColor.BLACK;
+        }
+        else return null;
+    }
+
     /*
      * Sending messages back to clients
      */
@@ -261,5 +270,8 @@ public class WebSocketServer {
     @OnWebSocketError
     public void onError(Session session, Throwable throwable) {}
 
-
+    @OnWebSocketClose
+    public void onClose(Session session, int statusCode, String reason) {
+        webSocketSessions.removeSession(session);
+    }
 }

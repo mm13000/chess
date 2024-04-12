@@ -6,12 +6,10 @@ import chess.ChessMove;
 public class MakeMoveCommand extends UserGameCommand {
     private final Integer gameID;
     private final ChessMove move;
-    private final TeamColor playerColor;
-    public MakeMoveCommand(String authToken, Integer gameID, ChessMove move, TeamColor playerColor) {
+    public MakeMoveCommand(String authToken, Integer gameID, ChessMove move) {
         super(authToken);
         this.gameID = gameID;
         this.move = move;
-        this.playerColor = playerColor;
         this.commandType = CommandType.MAKE_MOVE;
     }
 
@@ -23,7 +21,4 @@ public class MakeMoveCommand extends UserGameCommand {
         return move;
     }
 
-    public TeamColor getPlayerColor() {
-        return playerColor;
-    }
 }

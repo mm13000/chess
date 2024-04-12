@@ -40,13 +40,13 @@ public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<St
         sendMessage(new Gson().toJson(command));
     }
 
-    public void makeMove(Integer gameID, ChessMove move, TeamColor playerColor) {
-        MakeMoveCommand command = new MakeMoveCommand(authData.authToken(), gameID, move, playerColor);
+    public void makeMove(Integer gameID, ChessMove move) {
+        MakeMoveCommand command = new MakeMoveCommand(authData.authToken(), gameID, move);
         sendMessage(new Gson().toJson(command));
     }
 
-    public void leaveGame(Integer gameID, TeamColor playerTeam) {
-        LeaveCommand command = new LeaveCommand(authData.authToken(), gameID, playerTeam);
+    public void leaveGame(Integer gameID) {
+        LeaveCommand command = new LeaveCommand(authData.authToken(), gameID);
         sendMessage(new Gson().toJson(command));
     }
 
