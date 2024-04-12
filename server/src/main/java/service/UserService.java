@@ -27,19 +27,19 @@ public class UserService extends Service {
             authDAO.clearAuths();
             userDAO.clearUsers();
         } catch (DataAccessException e) {
-            throw new ResponseException(ResponseException.statusCode.ERROR, e.getMessage());
+            throw new ResponseException(ResponseException.StatusCode.ERROR, e.getMessage());
         }
     }
 
     public RegisterResult registerUser(RegisterRequest request) throws ResponseException {
         // first check that the request is valid
         if (invalidRequest(request)) {
-            throw new ResponseException(ResponseException.statusCode.BAD_REQUEST, "One of the required fields was null or empty");
+            throw new ResponseException(ResponseException.StatusCode.BAD_REQUEST, "One of the required fields was null or empty");
         }
         // then check that the username is not already taken
         try {
             userDAO.getUser(request.username());
-            throw new ResponseException(ResponseException.statusCode.TAKEN, "Username taken");
+            throw new ResponseException(ResponseException.StatusCode.TAKEN, "Username taken");
         } catch (DataAccessException ignored) {}
 
         // then create a user object and add that user to the database
@@ -49,7 +49,7 @@ public class UserService extends Service {
         try {
             userDAO.addUser(user);
         } catch (DataAccessException e) {
-            throw new ResponseException(ResponseException.statusCode.ERROR, e.getMessage());
+            throw new ResponseException(ResponseException.StatusCode.ERROR, e.getMessage());
         }
 
         // Then create a new Auth for the user and add it to the database
@@ -57,7 +57,7 @@ public class UserService extends Service {
         try {
             auth = authDAO.newAuth(request.username());
         } catch (DataAccessException e) {
-            throw new ResponseException(ResponseException.statusCode.ERROR, e.getMessage());
+            throw new ResponseException(ResponseException.StatusCode.ERROR, e.getMessage());
         }
 
         return new RegisterResult(user.username(), auth.authToken());
@@ -66,26 +66,26 @@ public class UserService extends Service {
     public LoginResult login(LoginRequest request) throws ResponseException {
         // first check that the request is valid
         if (invalidRequest(request)) {
-            throw new ResponseException(ResponseException.statusCode.BAD_REQUEST, "One of the required fields was null or empty");
+            throw new ResponseException(ResponseException.StatusCode.BAD_REQUEST, "One of the required fields was null or empty");
         }
         // then check that a user exists with the provided username
         UserData user;
         try {
             user = userDAO.getUser(request.username());
         } catch (DataAccessException e) {
-            throw new ResponseException(ResponseException.statusCode.UNAUTHORIZED, "No user with that username");
+            throw new ResponseException(ResponseException.StatusCode.UNAUTHORIZED, "No user with that username");
         }
         // then check that the password is correct
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         if (!encoder.matches(request.password(), user.password())) {
-            throw new ResponseException(ResponseException.statusCode.UNAUTHORIZED, "Incorrect password");
+            throw new ResponseException(ResponseException.StatusCode.UNAUTHORIZED, "Incorrect password");
         }
         // then create a new Auth for the user and add it to the database
         AuthData auth;
         try {
             auth = authDAO.newAuth(request.username());
         } catch (DataAccessException e) {
-            throw new ResponseException(ResponseException.statusCode.ERROR, e.getMessage());
+            throw new ResponseException(ResponseException.StatusCode.ERROR, e.getMessage());
         }
 
         return new LoginResult(user.username(), auth.authToken());
@@ -94,19 +94,19 @@ public class UserService extends Service {
     public void logout(LogoutRequest request) throws ResponseException {
         // first check that the request is valid (required fields have been provided)
         if (invalidRequest(request)) {
-            throw new ResponseException(ResponseException.statusCode.BAD_REQUEST, "No authToken provided");
+            throw new ResponseException(ResponseException.StatusCode.BAD_REQUEST, "No authToken provided");
         }
         // then check that the authToken is valid
         try {
             authDAO.getAuth(request.authToken());
         } catch (DataAccessException e) {
-            throw new ResponseException(ResponseException.statusCode.UNAUTHORIZED, "Invalid authToken");
+            throw new ResponseException(ResponseException.StatusCode.UNAUTHORIZED, "Invalid authToken");
         }
         // then delete the authToken from the database
         try {
             authDAO.deleteAuth(request.authToken());
         } catch (DataAccessException e) {
-            throw new ResponseException(ResponseException.statusCode.ERROR, e.getMessage());
+            throw new ResponseException(ResponseException.StatusCode.ERROR, e.getMessage());
         }
     }
 

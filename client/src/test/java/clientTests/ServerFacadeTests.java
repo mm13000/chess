@@ -66,7 +66,7 @@ public class ServerFacadeTests {
             serverFacade.register(goodRequest);
             Assertions.fail("ResponseException not thrown in duplicate user registration");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.TAKEN, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.TAKEN, e.statusCode());
         }
     }
 
@@ -93,7 +93,7 @@ public class ServerFacadeTests {
             serverFacade.register(badRequest);
             Assertions.fail("Response exception not thrown with null password at user registration");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
     }
 
@@ -128,7 +128,7 @@ public class ServerFacadeTests {
             serverFacade.login(loginRequest);
             Assertions.fail("Response exception not thrown at login with incorrect password");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.UNAUTHORIZED, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.statusCode());
         }
     }
 
@@ -143,7 +143,7 @@ public class ServerFacadeTests {
             serverFacade.login(loginRequest);
             Assertions.fail("Response exception not thrown at login of nonexistent user");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.UNAUTHORIZED, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.statusCode());
         }
     }
 
@@ -155,7 +155,7 @@ public class ServerFacadeTests {
             serverFacade.login(nullUsername);
             Assertions.fail("ResponseException not thrown at login with null username");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
 
         // Bad request because of null password
@@ -164,7 +164,7 @@ public class ServerFacadeTests {
             serverFacade.login(nullPassword);
             Assertions.fail("ResponseException not thrown at login with null password");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
 
         // Bad request because of empty username
@@ -173,7 +173,7 @@ public class ServerFacadeTests {
             serverFacade.login(emptyUsername);
             Assertions.fail("ResponseException not thrown at login with empty username");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
 
         // Bad request because of empty password
@@ -182,7 +182,7 @@ public class ServerFacadeTests {
             serverFacade.login(emptyPassword);
             Assertions.fail("ResponseException not thrown at login with empty password");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
     }
 
@@ -213,7 +213,7 @@ public class ServerFacadeTests {
         try {
             serverFacade.logout(request);
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.UNAUTHORIZED, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.statusCode());
         } catch (Exception e) {
             Assertions.fail("Test failed because an exception was thrown: " + e.getMessage());
         }
@@ -226,7 +226,7 @@ public class ServerFacadeTests {
             serverFacade.logout(new LogoutRequest("nonexistentAuthToken"));
             Assertions.fail("No ResponseException thrown when logging out with nonexistent authToken");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.UNAUTHORIZED, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.statusCode());
         }
         // First register a user so that the user exists in the server
         var user = testFactory.registerUser(new UserData("bob","1234","bob@me.com"));
@@ -242,7 +242,7 @@ public class ServerFacadeTests {
             serverFacade.logout(new LogoutRequest("nonexistentAuthToken"));
             Assertions.fail("No ResponseException thrown when logging out with nonexistent authToken");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.UNAUTHORIZED, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.statusCode());
         }
     }
 
@@ -254,7 +254,7 @@ public class ServerFacadeTests {
             serverFacade.logout(nullAuthToken);
             Assertions.fail("No ResponseException thrown when logging out with null authToken");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
         // Bad request because of empty authToken
         LogoutRequest emptyAuthToken = new LogoutRequest("");
@@ -262,7 +262,7 @@ public class ServerFacadeTests {
             serverFacade.logout(emptyAuthToken);
             Assertions.fail("No ResponseException thrown when logging out with empty authToken");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
     }
 
@@ -326,25 +326,25 @@ public class ServerFacadeTests {
             serverFacade.createGame(badRequest1);
             Assertions.fail("ResponseException not thrown with null gameName");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
         try {
             serverFacade.createGame(badRequest2);
             Assertions.fail("ResponseException not thrown with empty gameName");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
         try {
             serverFacade.createGame(badRequest3);
             Assertions.fail("ResponseException not thrown with null authToken");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
         try {
             serverFacade.createGame(badRequest4);
             Assertions.fail("ResponseException not thrown with empty authToken");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
     }
 
@@ -356,7 +356,7 @@ public class ServerFacadeTests {
             serverFacade.createGame(request);
             Assertions.fail("ResponseException not thrown with no registered users");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.UNAUTHORIZED, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.statusCode());
         }
 
         // Register a user and log them in
@@ -368,7 +368,7 @@ public class ServerFacadeTests {
             serverFacade.createGame(request);
             Assertions.fail("ResponseException not thrown with invalid Auth Token");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.UNAUTHORIZED, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.statusCode());
         }
     }
 
@@ -431,7 +431,7 @@ public class ServerFacadeTests {
             serverFacade.listGames(request);
             Assertions.fail("ResponseException not thrown with invalid authToken");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.UNAUTHORIZED, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.statusCode());
         }
     }
 
@@ -503,7 +503,7 @@ public class ServerFacadeTests {
             serverFacade.joinGame(request);
             Assertions.fail("Did not throw ResponseException with invalid gameID");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
     }
 
@@ -529,7 +529,7 @@ public class ServerFacadeTests {
             serverFacade.joinGame(request2);
             Assertions.fail("ResponseException not thrown when attempting to join as White Player");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.TAKEN, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.TAKEN, e.statusCode());
         }
 
         // Check that the first user is still the White player
@@ -557,7 +557,7 @@ public class ServerFacadeTests {
             serverFacade.joinGame(request);
             Assertions.fail("ResponseException not thrown with invalid authToken");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.UNAUTHORIZED, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.statusCode());
         }
     }
 }

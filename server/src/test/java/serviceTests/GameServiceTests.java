@@ -97,25 +97,25 @@ public class GameServiceTests {
             gameService.createGame(badRequest1);
             Assertions.fail("ResponseException not thrown with null gameName");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
         try {
             gameService.createGame(badRequest2);
             Assertions.fail("ResponseException not thrown with empty gameName");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
         try {
             gameService.createGame(badRequest3);
             Assertions.fail("ResponseException not thrown with null authToken");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
         try {
             gameService.createGame(badRequest4);
             Assertions.fail("ResponseException not thrown with empty authToken");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
     }
 
@@ -127,7 +127,7 @@ public class GameServiceTests {
             gameService.createGame(request);
             Assertions.fail("ResponseException not thrown with no registered users");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.UNAUTHORIZED, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.statusCode());
         }
 
         // Register a user and log them in
@@ -139,7 +139,7 @@ public class GameServiceTests {
             gameService.createGame(request);
             Assertions.fail("ResponseException not thrown with invalid Auth Token");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.UNAUTHORIZED, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.statusCode());
         }
     }
 
@@ -202,7 +202,7 @@ public class GameServiceTests {
             gameService.listGames(request);
             Assertions.fail("Did not throw Exception when given invalid authToken");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.UNAUTHORIZED, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.statusCode());
         }
     }
 
@@ -274,7 +274,7 @@ public class GameServiceTests {
             gameService.joinGame(request);
             Assertions.fail("No exception thrown with invalid gameID");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
     }
 
@@ -300,7 +300,7 @@ public class GameServiceTests {
             gameService.joinGame(request2);
             Assertions.fail();
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.TAKEN, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.TAKEN, e.statusCode());
         }
 
         // Check that the first user is still the White player
@@ -328,7 +328,7 @@ public class GameServiceTests {
             gameService.joinGame(request);
             Assertions.fail("Did not throw Exception when given invalid authToken");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.UNAUTHORIZED, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.statusCode());
         }
     }
 

@@ -24,6 +24,7 @@ import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.*;
 
 import java.io.IOException;
+import java.util.Map;
 
 @WebSocket
 public class WebSocketServer {
@@ -147,8 +148,10 @@ public class WebSocketServer {
         String broadcastMessage = username + " moved " + piece + " from " + startPosition + " to " + endPosition;
         broadcastMessage(command.getGameID(), new NotificationMessage(broadcastMessage), session);
 
-        // Check for checkmate or stalemate...
-        // TODO
+        // Check for check, checkmate, or stalemate...
+        if (validateCheckmate(session, gameData)) return;
+        if (validateStalemate(session, gameData)) return;
+        validateCheck(gameData);
     }
 
     private void onResignCommand(Session session, String resignCommandJson) {
@@ -175,13 +178,7 @@ public class WebSocketServer {
         }
 
         // Mark the game as over (set the player turn to 'null'). Update it in the database.
-        gameData.game().setPlayerTurn(null);
-        try {
-            gameService.updateGame(gameData);
-        } catch (Exception e) {
-            sendMessage(session, new ErrorMessage("Error: unable to update game in the database"));
-            return;
-        }
+        if (markGameOver(session, gameData)) return;
 
         // Broadcast a message notifying resignation
         String message = " resigned. Game is over.";
@@ -226,6 +223,10 @@ public class WebSocketServer {
         broadcastMessage(gameData.gameID(), new NotificationMessage(broadcastMessage), session);
     }
 
+    /*
+     * Helper methods for message receive handler methods above
+     */
+
     private String validateAuth(Session session, String authToken) {
         // Get the player's username, null if auth token is invalid. Returns username.
         String username = userService.getUsername(authToken);
@@ -245,6 +246,48 @@ public class WebSocketServer {
             return username.equals(gameData.whiteUsername()) ? TeamColor.WHITE : TeamColor.BLACK;
         }
         else return null;
+    }
+
+    private boolean markGameOver(Session session, GameData gameData) {
+        gameData.game().setPlayerTurn(null);
+        try {
+            gameService.updateGame(gameData);
+        } catch (Exception e) {
+            sendMessage(session, new ErrorMessage("Error: unable to update game in the database"));
+            return true;
+        }
+        return false;
+    }
+
+    private void validateCheck(GameData gameData) {
+        TeamColor playerTurn = gameData.game().getPlayerTurn();
+        if (gameData.game().isInCheck(playerTurn)) {
+            String message = playerTurn + " player is in check.";
+            broadcastMessage(gameData.gameID(), new NotificationMessage(message), null);
+        }
+    }
+
+    private boolean validateStalemate(Session session, GameData gameData) {
+        TeamColor playerTurn = gameData.game().getPlayerTurn();
+        if (gameData.game().isInStalemate(playerTurn)) {
+            String message = playerTurn + " player has no available moves. Stalemate. Game over.";
+            broadcastMessage(gameData.gameID(), new NotificationMessage(message), null);
+            markGameOver(session, gameData);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean validateCheckmate(Session session, GameData gameData) {
+        TeamColor playerTurn = gameData.game().getPlayerTurn();
+        TeamColor otherPlayerColor = playerTurn.equals(TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+        if (gameData.game().isInCheckmate(playerTurn)) {
+            String message = playerTurn + " player is in checkmate. " + otherPlayerColor + " player has won!";
+            broadcastMessage(gameData.gameID(), new NotificationMessage(message), null);
+            markGameOver(session, gameData);
+            return true;
+        }
+        return false;
     }
 
     /*

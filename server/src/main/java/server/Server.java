@@ -89,8 +89,8 @@ public class Server {
     }
 
     private Object exceptionHandler(ResponseException e, Request req, Response res) {
-        res.status(e.StatusCode().code);
-        String message = switch (e.StatusCode()) {
+        res.status(e.statusCode().code);
+        String message = switch (e.statusCode()) {
             case BAD_REQUEST -> "Error: bad request";
             case UNAUTHORIZED -> "Error: unauthorized";
             case TAKEN -> "Error: already taken";

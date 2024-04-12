@@ -54,7 +54,7 @@ class UserServiceTests {
             userService.registerUser(goodRequest);
             Assertions.fail("registerUser() did not throw NameTaken exception");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.TAKEN, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.TAKEN, e.statusCode());
         }
     }
 
@@ -79,7 +79,7 @@ class UserServiceTests {
             userService.registerUser(badRequest);
             Assertions.fail("registerUser() did not throw a ResponseException when given null password");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
     }
 
@@ -114,7 +114,7 @@ class UserServiceTests {
             userService.login(loginRequest);
             Assertions.fail("Did not throw unauthorized exception.");
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.UNAUTHORIZED, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.statusCode());
         }
     }
 
@@ -129,7 +129,7 @@ class UserServiceTests {
             userService.login(loginRequest);
             Assertions.fail();
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.UNAUTHORIZED, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.statusCode());
         }
     }
 
@@ -141,7 +141,7 @@ class UserServiceTests {
             userService.login(nullUsername);
             Assertions.fail();
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
 
         // Bad request because of null password
@@ -150,7 +150,7 @@ class UserServiceTests {
             userService.login(nullPassword);
             Assertions.fail();
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
 
         // Bad request because of empty username
@@ -159,7 +159,7 @@ class UserServiceTests {
             userService.login(emptyUsername);
             Assertions.fail();
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
 
         // Bad request because of empty password
@@ -168,7 +168,7 @@ class UserServiceTests {
             userService.login(emptyPassword);
             Assertions.fail();
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
     }
 
@@ -205,7 +205,7 @@ class UserServiceTests {
             userService.logout(new LogoutRequest("1122"));
             Assertions.fail();
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.UNAUTHORIZED, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.statusCode());
         }
         // First register a user so that the user exists in the server
         var user = testFactory.registerUser(new UserData("bob","1234","bob@me.com"));
@@ -221,7 +221,7 @@ class UserServiceTests {
             userService.logout(new LogoutRequest("nonexistentAuthToken"));
             Assertions.fail();
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.UNAUTHORIZED, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.UNAUTHORIZED, e.statusCode());
         }
     }
 
@@ -233,7 +233,7 @@ class UserServiceTests {
             userService.logout(nullAuthToken);
             Assertions.fail();
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
         // Bad request because of empty authToken
         LogoutRequest emptyAuthToken = new LogoutRequest("");
@@ -241,7 +241,7 @@ class UserServiceTests {
             userService.logout(emptyAuthToken);
             Assertions.fail();
         } catch (ResponseException e) {
-            Assertions.assertEquals(ResponseException.statusCode.BAD_REQUEST, e.StatusCode());
+            Assertions.assertEquals(ResponseException.StatusCode.BAD_REQUEST, e.statusCode());
         }
     }
 }

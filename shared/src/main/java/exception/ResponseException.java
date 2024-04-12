@@ -1,18 +1,18 @@
 package exception;
 
 public class ResponseException extends Exception {
-    final private ResponseException.statusCode statusCode;
+    final private StatusCode statusCode;
 
-    public ResponseException(ResponseException.statusCode statusCode, String message) {
+    public ResponseException(StatusCode statusCode, String message) {
         super(message);
         this.statusCode = statusCode;
     }
 
-    public ResponseException.statusCode StatusCode() {
+    public StatusCode statusCode() {
         return statusCode;
     }
 
-    public enum statusCode {
+    public enum StatusCode {
         // Enum definition. Status code int representation is passed to constructor.
         OK(200),
         BAD_REQUEST(400),
@@ -21,7 +21,7 @@ public class ResponseException extends Exception {
         ERROR(500);
 
         public final int code;
-        statusCode(int code) {
+        StatusCode(int code) {
             this.code = code;
         }
     }

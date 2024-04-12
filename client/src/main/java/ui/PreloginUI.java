@@ -62,7 +62,7 @@ public class PreloginUI extends UI {
         try {
             loginResult = serverFacade.login(loginRequest);
         } catch (ResponseException e) {
-            if (e.StatusCode() == ResponseException.statusCode.UNAUTHORIZED) {
+            if (e.statusCode() == ResponseException.StatusCode.UNAUTHORIZED) {
                 printErrorMessage("Invalid username or password. You may try again.");
             } else {
                 printErrorMessage("Login attempt was unsuccessful. You may try again.");
@@ -84,7 +84,7 @@ public class PreloginUI extends UI {
         try {
             registerResult = serverFacade.register(registerRequest);
         } catch (ResponseException e) {
-            switch (e.StatusCode()) {
+            switch (e.statusCode()) {
                 case BAD_REQUEST -> printErrorMessage("A required field was left blank. You may try again.");
                 case TAKEN -> printErrorMessage("Username already taken. You may try again.");
                 default -> printErrorMessage("Registration unsuccessful. You may try again.");

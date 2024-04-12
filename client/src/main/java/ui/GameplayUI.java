@@ -102,11 +102,20 @@ public class GameplayUI extends UI implements GameplayHandler {
         System.out.print("Enter the position of the piece (e.g. 'E5'): ");
         ChessPosition piecePosition = getPosition();
 
+        // Check that there is a piece at the position
+        if (game.getBoard().getPiece(piecePosition) == null) {
+            printErrorMessage("No piece at that position. You may try again.");
+            return;
+        }
+
         // Get a collection of valid moves for that piece
         Collection<ChessMove> validMoves = game.validMoves(piecePosition);
         Collection<ChessPosition> highlightPositions = new HashSet<>();
         for (var move : validMoves) {
             highlightPositions.add(move.getEndPosition());
+        }
+        if (highlightPositions.isEmpty()) {
+            printNotification("No available moves");
         }
         drawBoard(highlightPositions);
     }
