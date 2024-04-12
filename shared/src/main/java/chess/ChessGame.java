@@ -1,5 +1,8 @@
 package chess;
 
+import chess.chessRules.ChessRules;
+import com.google.gson.Gson;
+
 import java.util.Collection;
 
 /**
@@ -10,17 +13,21 @@ import java.util.Collection;
  */
 public class ChessGame {
 
-    private final ChessGameState state;
-
+    private ChessBoard board;
+    public TeamColor playerTurn;
+    private final ChessRules rules;
     public ChessGame() {
-        state = new ChessGameState();
+        board = new ChessBoard();
+        board.resetBoard();
+        rules = new ChessRules();
+        playerTurn = TeamColor.WHITE;
     }
 
     /**
      * @return Which team's turn it is
      */
-    public TeamColor getTeamTurn() {
-        return state.getTurn();
+    public TeamColor getPlayerTurn() {
+        return playerTurn;
     }
 
     /**
@@ -28,13 +35,12 @@ public class ChessGame {
      *
      * @param team the team whose turn it is
      */
-    public void setTeamTurn(TeamColor team) {
-        state.setTurn(team);
+    public void setPlayerTurn(TeamColor team) {
+        playerTurn = team;
     }
 
-    private void advanceTeamTurn() {
-        if (state.getTurn() == TeamColor.WHITE) state.setTurn(TeamColor.BLACK);
-        else state.setTurn(TeamColor.WHITE);
+    private void advancePlayerTurn() {
+        playerTurn = playerTurn.equals(TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
     /**
@@ -53,7 +59,7 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        return state.getRules().validMoves(state.getBoard(), startPosition);
+        return rules.validMoves(board, startPosition);
     }
 
     /**
@@ -65,9 +71,9 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         boolean moveIsValid = false;
 
-        // Check that it is the right team's turn
+        // Check that it is the right team's turn, and they are attempting to move their own piece
         TeamColor moveTeam = getBoard().getPiece(move.getStartPosition()).getTeamColor();
-        if (getTeamTurn() != moveTeam) throw new InvalidMoveException("Move out of turn");
+        if (getPlayerTurn() != moveTeam) throw new InvalidMoveException("Move out of turn");
 
         // Get all the valid moves for the piece at the specified start position
         Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
@@ -79,8 +85,8 @@ public class ChessGame {
         // If it does, make the move
         for (var validMove : validMoves) {
             if (validMove.equals(move)) {
-                state.getBoard().movePiece(move);
-                advanceTeamTurn();
+                board.movePiece(move);
+                advancePlayerTurn();
                 moveIsValid = true;
                 break;
             }
@@ -96,7 +102,7 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        return state.getRules().isInCheck(state.getBoard(), teamColor);
+        return rules.isInCheck(board, teamColor);
     }
 
     /**
@@ -106,7 +112,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        return state.getRules().isInCheckmate(state.getBoard(), teamColor);
+        return rules.isInCheckmate(board, teamColor);
     }
 
     /**
@@ -117,7 +123,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        return state.getRules().isInStalemate(state.getBoard(), teamColor);
+        return rules.isInStalemate(board, teamColor);
     }
 
     /**
@@ -126,7 +132,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        state.setBoard(board);
+        this.board = board;
     }
 
     /**
@@ -135,6 +141,15 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        return state.getBoard();
+        return board;
     }
+
+    public static void main(String[] args) {
+        record MyRecord(TeamColor teamColor) {}
+        MyRecord myRecord = new MyRecord(TeamColor.WHITE);
+        ChessGame game = new ChessGame();
+        String json = new Gson().toJson(game);
+        System.out.print(json);
+    }
+
 }

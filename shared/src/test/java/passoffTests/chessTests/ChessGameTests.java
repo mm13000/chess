@@ -25,7 +25,7 @@ public class ChessGameTests {
                 | | |B| | | | | |
                 | |K| | | | | |R|
                 """));
-        game.setTeamTurn(ChessGame.TeamColor.WHITE);
+        game.setPlayerTurn(ChessGame.TeamColor.WHITE);
 
         //king
         var kingStartPosition = getNewPosition(1, 2);
@@ -133,7 +133,7 @@ public class ChessGameTests {
         board.resetBoard();
         var game = getNewGame();
         game.setBoard(board);
-        game.setTeamTurn(ChessGame.TeamColor.WHITE);
+        game.setPlayerTurn(ChessGame.TeamColor.WHITE);
 
         Assertions.assertEquals(game.getBoard(),
                 loadBoard("""
@@ -368,7 +368,7 @@ public class ChessGameTests {
                 | | | | |p| | | |
                 | | | | | |Q| | |
                 """));
-        game.setTeamTurn(ChessGame.TeamColor.WHITE);
+        game.setPlayerTurn(ChessGame.TeamColor.WHITE);
 
         //White promotion
         ChessMove whitePromotion = getNewMove(getNewPosition(7, 3),
@@ -460,7 +460,7 @@ public class ChessGameTests {
                 | | | | |n| | | |
                 | | | | | | | | |
                 """));
-        game.setTeamTurn(ChessGame.TeamColor.WHITE);
+        game.setPlayerTurn(ChessGame.TeamColor.WHITE);
 
         Assertions.assertTrue(game.isInCheckmate(ChessGame.TeamColor.WHITE),
                 "White is in checkmate but isInCheckmate returned false");
@@ -483,7 +483,7 @@ public class ChessGameTests {
                 | | | | | | | | |
                 | | | |K| | | | |
                 """));
-        game.setTeamTurn(ChessGame.TeamColor.BLACK);
+        game.setPlayerTurn(ChessGame.TeamColor.BLACK);
 
         Assertions.assertTrue(game.isInCheckmate(ChessGame.TeamColor.BLACK),
                 "Black is in checkmate but isInCheckmate returned false");
@@ -507,7 +507,7 @@ public class ChessGameTests {
                 | | | | | | | | |
                 | | | | |b| | | |
                 """));
-        game.setTeamTurn(ChessGame.TeamColor.WHITE);
+        game.setPlayerTurn(ChessGame.TeamColor.WHITE);
 
         Assertions.assertTrue(game.isInStalemate(ChessGame.TeamColor.WHITE),
                 "White is in a stalemate but isInStalemate returned false");
@@ -523,7 +523,7 @@ public class ChessGameTests {
         board.resetBoard();
         var game = getNewGame();
         game.setBoard(board);
-        game.setTeamTurn(ChessGame.TeamColor.WHITE);
+        game.setPlayerTurn(ChessGame.TeamColor.WHITE);
 
         Assertions.assertFalse(game.isInCheckmate(ChessGame.TeamColor.BLACK),
                 "Black is not in checkmate but isInCheckmate returned true");

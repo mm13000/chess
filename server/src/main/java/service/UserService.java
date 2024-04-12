@@ -109,4 +109,13 @@ public class UserService extends Service {
             throw new ResponseException(ResponseException.StatusCode.ERROR, e.getMessage());
         }
     }
+
+    public String getUsername(String authToken) {
+        // Returns null for the username if authToken is invalid
+        try {
+            return authDAO.getAuth(authToken).username();
+        } catch (DataAccessException e) {
+            return null;
+        }
+    }
 }

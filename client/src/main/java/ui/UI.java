@@ -4,10 +4,10 @@ import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class Repl {
+public class UI {
     protected static String getCommand() {
         // Get user command from the terminal
-        System.out.print("\nEnter command: ");
+        System.out.print("Enter command: ");
         return new Scanner(System.in).next().toLowerCase();
     }
 

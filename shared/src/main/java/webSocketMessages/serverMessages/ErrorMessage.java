@@ -6,4 +6,7 @@ public class ErrorMessage extends ServerMessage {
         super(ServerMessageType.ERROR);
         errorMessage = message; // Message must include the word "Error" (project specs)
     }
+    public String getErrorMessage() {
+        return errorMessage;
+    }
 }

@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataAccess.auth.AuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.game.GameDAO;
@@ -13,6 +14,7 @@ import result.CreateGameResult;
 import result.GameHeader;
 import result.ListGamesResult;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,7 +109,7 @@ public class GameService extends Service {
         try {
             authDAO.getAuth(request.authToken());
         } catch (DataAccessException ex) {
-            throw new ResponseException(ResponseException.StatusCode.UNAUTHORIZED, "Invalid authToken provided. Not authorized.");
+            throw new ResponseException(ResponseException.StatusCode.UNAUTHORIZED, "Invalid authToken. Not authorized.");
         }
 
         // Then query the database for the list of all games, remove the actual games from it, and return headers
@@ -122,5 +124,17 @@ public class GameService extends Service {
             result.games().add(new GameHeader(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
         }
         return result;
+    }
+
+    public GameData getGame(Integer gameID) {
+        try {
+            return gameDAO.getGame(gameID);
+        } catch (DataAccessException e) {
+            return null;
+        }
+    }
+
+    public void updateGame(GameData gameData) throws DataAccessException {
+        gameDAO.updateGame(gameData.gameID(), gameData);
     }
 }

@@ -11,4 +11,12 @@ public class JoinPlayerCommand extends UserGameCommand {
         this.playerColor = team;
         this.commandType = CommandType.JOIN_PLAYER;
     }
+
+    public Integer getGameID() {
+        return gameID;
+    }
+
+    public TeamColor getPlayerColor() {
+        return playerColor;
+    }
 }

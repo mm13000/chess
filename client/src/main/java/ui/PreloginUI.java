@@ -1,6 +1,7 @@
 package ui;
 
 import exception.ResponseException;
+import model.AuthData;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.LoginResult;
@@ -11,12 +12,12 @@ import static ui.EscapeSequences.*;
 
 import java.util.Scanner;
 
-public class PreloginRepl extends Repl {
+public class PreloginUI extends UI {
     private final ServerFacade serverFacade;
-    private final PostloginRepl postloginRepl;
-    public PreloginRepl(String serverDomain, int serverPort) {
+    private final PostloginUI postloginUI;
+    public PreloginUI(String serverDomain, int serverPort) {
         serverFacade = new ServerFacade(serverDomain, serverPort);
-        postloginRepl = new PostloginRepl(serverFacade);
+        postloginUI = new PostloginUI(serverFacade);
     }
 
     public void run() {
@@ -70,7 +71,7 @@ public class PreloginRepl extends Repl {
         }
 
         // Transition to the postLogin UI
-        postloginRepl.run(loginResult.authToken());
+        postloginUI.run(new AuthData(loginResult.username(), loginResult.authToken()));
         help();
     }
 
@@ -92,7 +93,7 @@ public class PreloginRepl extends Repl {
         }
 
         // Transition the postLogin UI
-        postloginRepl.run(registerResult.authToken());
+        postloginUI.run(new AuthData(registerResult.username(), registerResult.authToken()));
         help();
     }
 

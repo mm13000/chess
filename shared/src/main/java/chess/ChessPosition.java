@@ -34,6 +34,21 @@ public class ChessPosition {
         return column;
     }
 
+    public String positionCode() {
+        String col = switch (this.column) {
+            case 1 -> "A";
+            case 2 -> "B";
+            case 3 -> "C";
+            case 4 -> "D";
+            case 5 -> "E";
+            case 6 -> "F";
+            case 7 -> "G";
+            case 8 -> "H";
+            default -> "";
+        };
+        return col + this.row;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

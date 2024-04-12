@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessGame;
 import exception.ResponseException;
+import model.AuthData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import request.ListGamesRequest;
@@ -13,29 +14,29 @@ import serverFacade.ServerFacade;
 
 import java.util.*;
 
-public class PostloginRepl extends Repl {
-    private String authToken = null;
+public class PostloginUI extends UI {
+    private AuthData authData = null;
     private final ServerFacade serverFacade;
-    private final GameplayRepl gameplayRepl;
+    private final GameplayUI gameplayUI;
     private final HashMap<Integer, Integer> gameDisplayOrder = new HashMap<>();
-    public PostloginRepl(ServerFacade serverFacade) {
+    public PostloginUI(ServerFacade serverFacade) {
         this.serverFacade = serverFacade;
-        this.gameplayRepl = new GameplayRepl(serverFacade);
+        this.gameplayUI = new GameplayUI();
     }
 
-    public void run(String authToken) {
-        this.authToken = authToken;
+    public void run(AuthData authData) {
+        this.authData = authData;
         printNotification("\nYou are logged in.\n");
 
-        initializeGameDisplayMap(authToken); // initialize gameDisplayOrder Map
+        initializeGameDisplayMap(); // initialize gameDisplayOrder Map
 
         // Client REPL loop. Stay in this loop until the user uses the "logout" command to return to the previous repl.
         help();
         replLoop();
     }
 
-    private void initializeGameDisplayMap(String authToken) {
-        ListGamesRequest listGamesRequest = new ListGamesRequest(authToken);
+    private void initializeGameDisplayMap() {
+        ListGamesRequest listGamesRequest = new ListGamesRequest(authData.authToken());
         ListGamesResult listGamesResult = null;
         try {
             listGamesResult = this.serverFacade.listGames(listGamesRequest);
@@ -77,7 +78,7 @@ public class PostloginRepl extends Repl {
 
     private void logout() {
         // Attempt to log the user out
-        LogoutRequest logoutRequest = new LogoutRequest(authToken);
+        LogoutRequest logoutRequest = new LogoutRequest(authData.authToken());
         try {
             serverFacade.logout(logoutRequest);
         } catch (ResponseException e) {
@@ -116,7 +117,7 @@ public class PostloginRepl extends Repl {
 
     private void listGames() {
         // Attempt to list the games found in the Server
-        ListGamesRequest listGamesRequest = new ListGamesRequest(authToken);
+        ListGamesRequest listGamesRequest = new ListGamesRequest(authData.authToken());
         ListGamesResult listGamesResult;
         try {
             listGamesResult = serverFacade.listGames(listGamesRequest);
@@ -160,7 +161,7 @@ public class PostloginRepl extends Repl {
         }
 
         // Transition to the GamePlay UI
-        gameplayRepl.run(authToken);
+        gameplayUI.run(authData, joinGameRequest.gameID(), joinGameRequest.playerColor());
         help();
     }
 
@@ -168,7 +169,7 @@ public class PostloginRepl extends Repl {
         // Prompt user for JoinGameRequest info
         JoinGameRequest joinGameRequest = getObserveGameInfo();
 
-        // Attempt to join the game on the server
+        // Send join game request to verify that the game exists on the server
         try {
             serverFacade.joinGame(joinGameRequest);
         } catch (ResponseException e) {
@@ -177,7 +178,7 @@ public class PostloginRepl extends Repl {
         }
 
         // Transition to the GamePlay UI
-        gameplayRepl.run(authToken);
+        gameplayUI.run(authData, joinGameRequest.gameID(), null);
         help();
     }
 
@@ -188,7 +189,7 @@ public class PostloginRepl extends Repl {
     private CreateGameRequest getCreateGameInfo() {
         System.out.print("Enter game name: ");
         String gameName = new Scanner(System.in).nextLine();
-        return new CreateGameRequest(authToken, gameName);
+        return new CreateGameRequest(authData.authToken(), gameName);
     }
 
     private int getGameID() {
@@ -229,7 +230,7 @@ public class PostloginRepl extends Repl {
         }
 
         // return JoinGameRequest
-        return new JoinGameRequest(authToken, playerColor, gameID);
+        return new JoinGameRequest(authData.authToken(), playerColor, gameID);
     }
 
     private JoinGameRequest getObserveGameInfo() {
@@ -237,7 +238,7 @@ public class PostloginRepl extends Repl {
         int gameID = getGameID();
 
         // Return the appropriate JoinGameRequest
-        return new JoinGameRequest(authToken, null, gameID);
+        return new JoinGameRequest(authData.authToken(), null, gameID);
     }
 
     private void printGameList(List<GameHeader> gameList) {

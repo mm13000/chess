@@ -2,6 +2,7 @@ package dataAccess.game;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import dataAccess.DataAccessException;
 import dataAccess.DatabaseManager;
 import model.GameData;
@@ -98,7 +99,8 @@ public class GameDAOmySQL implements GameDAO {
 
     @Override
     public void updateGame(int gameID, GameData updatedGame) throws DataAccessException {
-        String gameString = new Gson().toJson(updatedGame.game(), ChessGame.class);
+        Gson gson = new GsonBuilder().serializeNulls().create();
+        String gameString = gson.toJson(updatedGame.game());
         try (Connection conn = DatabaseManager.getConnection()) {
             String sql = """
                     UPDATE games
