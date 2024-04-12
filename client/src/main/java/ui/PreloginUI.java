@@ -62,7 +62,7 @@ public class PreloginUI extends UI {
         try {
             loginResult = serverFacade.login(loginRequest);
         } catch (ResponseException e) {
-            if (e.StatusCode() == ResponseException.StatusCode.UNAUTHORIZED) {
+            if (e.StatusCode() == ResponseException.statusCode.UNAUTHORIZED) {
                 printErrorMessage("Invalid username or password. You may try again.");
             } else {
                 printErrorMessage("Login attempt was unsuccessful. You may try again.");

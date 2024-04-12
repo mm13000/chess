@@ -21,7 +21,7 @@ import java.sql.SQLException;
 public class Server {
     private final GameHandler gameHandler;
     private final UserHandler userHandler;
-    private enum databaseType {
+    private enum DatabaseType {
         MEMORY,
         MYSQL
     }
@@ -33,7 +33,7 @@ public class Server {
         UserDAO userDAO = null;
 
         // Initialize DAOs and setup database as needed:
-        databaseType dbtype = databaseType.MYSQL; // CHANGE THIS TO CHANGE DATABASE TYPE
+        DatabaseType dbtype = DatabaseType.MYSQL; // CHANGE THIS TO CHANGE DATABASE TYPE
         switch (dbtype) {
             case MEMORY:
                 authDAO = new AuthDAOMemory();

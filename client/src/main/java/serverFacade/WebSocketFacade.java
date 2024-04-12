@@ -118,14 +118,4 @@ public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<St
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
-
-    public static void main(String[] args) throws Exception {
-//        var wsclient = new WebSocketFacade(new GameplayUI());
-//        wsclient.joinPlayer("012", 1, ChessGame.TeamColor.WHITE);
-//        while (true);
-//        ServerMessage message = new NotificationMessage("You have been notified.");
-//        String json = new Gson().toJson(message);
-//        ServerMessage received = new Gson().fromJson(json, ServerMessage.class);
-//        System.out.println(received.getClass());
-    }
 }

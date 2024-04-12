@@ -86,8 +86,8 @@ public class GameDAOmySQL implements GameDAO {
                     String whiteUsername = rs.getNString("whiteUsername");
                     String blackUsername = rs.getNString("blackUsername");
                     String gameName = rs.getNString("gameName");
-                    String game_data = rs.getNString("game_data");
-                    ChessGame chessGame = new Gson().fromJson(game_data, ChessGame.class);
+                    String gameData = rs.getNString("game_data");
+                    ChessGame chessGame = new Gson().fromJson(gameData, ChessGame.class);
                     // return the game info
                     return new GameData(id, whiteUsername, blackUsername, gameName, chessGame);
                 } else throw new DataAccessException("No game with gameID found");

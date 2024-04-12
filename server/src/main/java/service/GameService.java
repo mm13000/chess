@@ -1,6 +1,5 @@
 package service;
 
-import chess.ChessGame;
 import dataAccess.auth.AuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.game.GameDAO;
@@ -14,7 +13,6 @@ import result.CreateGameResult;
 import result.GameHeader;
 import result.ListGamesResult;
 
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,20 +29,20 @@ public class GameService extends Service {
         try {
             gameDAO.clearGames();
         } catch (DataAccessException e) {
-            throw new ResponseException(ResponseException.StatusCode.ERROR, e.getMessage());
+            throw new ResponseException(ResponseException.statusCode.ERROR, e.getMessage());
         }
     }
 
     public CreateGameResult createGame(CreateGameRequest request) throws ResponseException {
         // Check that the request is good
-        if (invalidRequest(request)) throw new ResponseException(ResponseException.StatusCode.BAD_REQUEST,
+        if (invalidRequest(request)) throw new ResponseException(ResponseException.statusCode.BAD_REQUEST,
                 "One of the fields in the request is null or empty");
 
         // Check that the user's authToken is valid
         try {
             authDAO.getAuth(request.authToken());
         } catch (DataAccessException ex) {
-            throw new ResponseException(ResponseException.StatusCode.UNAUTHORIZED, "Invalid authToken provided. Not authorized.");
+            throw new ResponseException(ResponseException.statusCode.UNAUTHORIZED, "Invalid authToken provided. Not authorized.");
         }
 
         // Then create a game and add it to the database
@@ -52,7 +50,7 @@ public class GameService extends Service {
         try {
             gameID = gameDAO.createGame(request.gameName());
         } catch (DataAccessException e) {
-            throw new ResponseException(ResponseException.StatusCode.ERROR, e.getMessage());
+            throw new ResponseException(ResponseException.statusCode.ERROR, e.getMessage());
         }
 
         // Return the result with the new game's gameID
@@ -62,21 +60,21 @@ public class GameService extends Service {
     public void joinGame(JoinGameRequest request) throws ResponseException {
         // Start by checking that the request is valid
         if (request.authToken() == null || request.authToken().isEmpty() || request.gameID() <=0 ) {
-            throw new ResponseException(ResponseException.StatusCode.BAD_REQUEST, "One of the required request fields is invalid");
+            throw new ResponseException(ResponseException.statusCode.BAD_REQUEST, "One of the required request fields is invalid");
         }
         // Check that the authToken is valid
         AuthData auth;
         try {
             auth = authDAO.getAuth(request.authToken());
         } catch (DataAccessException ex) {
-            throw new ResponseException(ResponseException.StatusCode.UNAUTHORIZED, "Invalid authToken provided. Not authorized.");
+            throw new ResponseException(ResponseException.statusCode.UNAUTHORIZED, "Invalid authToken provided. Not authorized.");
         }
         // Then try to get the game data
         GameData game;
         try {
             game = gameDAO.getGame(request.gameID());
         } catch (DataAccessException e) {
-            throw new ResponseException(ResponseException.StatusCode.BAD_REQUEST, "Requested game not found. gameID does not exist in database.");
+            throw new ResponseException(ResponseException.statusCode.BAD_REQUEST, "Requested game not found. gameID does not exist in database.");
         }
         // Then check that the requested player color (if applicable) is not yet assigned
         if (request.playerColor() != null) {
@@ -85,7 +83,7 @@ public class GameService extends Service {
                 case BLACK -> game.blackUsername();
             };
             if (currentPlayer != null)
-                throw new ResponseException(ResponseException.StatusCode.TAKEN, "Requested player team already taken by" + currentPlayer);
+                throw new ResponseException(ResponseException.statusCode.TAKEN, "Requested player team already taken by" + currentPlayer);
 
             // Then update the game with the new player assigned
             GameData newGame;
@@ -96,7 +94,7 @@ public class GameService extends Service {
             try {
                 gameDAO.updateGame(game.gameID(), newGame);
             } catch (DataAccessException e) {
-                throw new ResponseException(ResponseException.StatusCode.ERROR, e.getMessage());
+                throw new ResponseException(ResponseException.statusCode.ERROR, e.getMessage());
             }
         }
     }
@@ -104,12 +102,12 @@ public class GameService extends Service {
     public ListGamesResult listGames(ListGamesRequest request) throws ResponseException {
         // Check that the request is valid
         if (invalidRequest(request))
-            throw new ResponseException(ResponseException.StatusCode.BAD_REQUEST, "authToken null or empty");
+            throw new ResponseException(ResponseException.statusCode.BAD_REQUEST, "authToken null or empty");
         // Check that the authToken is valid
         try {
             authDAO.getAuth(request.authToken());
         } catch (DataAccessException ex) {
-            throw new ResponseException(ResponseException.StatusCode.UNAUTHORIZED, "Invalid authToken. Not authorized.");
+            throw new ResponseException(ResponseException.statusCode.UNAUTHORIZED, "Invalid authToken. Not authorized.");
         }
 
         // Then query the database for the list of all games, remove the actual games from it, and return headers
@@ -117,7 +115,7 @@ public class GameService extends Service {
         try {
             games = gameDAO.listGames();
         } catch (DataAccessException e) {
-            throw new ResponseException(ResponseException.StatusCode.ERROR, e.getMessage());
+            throw new ResponseException(ResponseException.statusCode.ERROR, e.getMessage());
         }
         ListGamesResult result = new ListGamesResult(new ArrayList<>());
         for (GameData game : games) {

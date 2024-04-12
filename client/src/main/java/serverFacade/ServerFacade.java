@@ -83,14 +83,14 @@ public class ServerFacade {
             HttpURLConnection connection = getHttpURLConnection(method, path, authToken, body);
             return readResponse(connection); // return body or throw ResponseException based on status code
         } catch (IOException | URISyntaxException e) {
-            throw new ResponseException(ResponseException.StatusCode.ERROR, e.getMessage());
+            throw new ResponseException(ResponseException.statusCode.ERROR, e.getMessage());
         }
     }
 
     private static String readResponse(HttpURLConnection connection) throws IOException, ResponseException {
         int responseCode = connection.getResponseCode();
         StringBuilder stringBuilder = new StringBuilder();
-        if (responseCode == ResponseException.StatusCode.OK.code) {
+        if (responseCode == ResponseException.statusCode.OK.code) {
             try (InputStream responseBody = connection.getInputStream();
                  BufferedReader reader = new BufferedReader(new InputStreamReader(responseBody))) {
                 String line;
@@ -100,11 +100,11 @@ public class ServerFacade {
             }
             return stringBuilder.toString();
         } else {
-            ResponseException.StatusCode statusCode = switch (responseCode) {
-                case 400 -> ResponseException.StatusCode.BAD_REQUEST;
-                case 401 -> ResponseException.StatusCode.UNAUTHORIZED;
-                case 403 -> ResponseException.StatusCode.TAKEN;
-                default -> ResponseException.StatusCode.ERROR;
+            ResponseException.statusCode statusCode = switch (responseCode) {
+                case 400 -> ResponseException.statusCode.BAD_REQUEST;
+                case 401 -> ResponseException.statusCode.UNAUTHORIZED;
+                case 403 -> ResponseException.statusCode.TAKEN;
+                default -> ResponseException.statusCode.ERROR;
             };
             try (InputStream responseBody = connection.getErrorStream();
                  BufferedReader reader = new BufferedReader(new InputStreamReader(responseBody))) {

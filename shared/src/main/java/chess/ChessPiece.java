@@ -15,13 +15,10 @@ public class ChessPiece {
 
     private final ChessGame.TeamColor teamColor;
     private final PieceType pieceType;
-    private boolean hasMoved;
-
 
     public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
         this.teamColor = pieceColor;
         this.pieceType = type;
-        this.hasMoved = false;
     }
 
     /**
@@ -50,11 +47,6 @@ public class ChessPiece {
         return this.pieceType;
     }
 
-    public boolean hasMoved() { return this.hasMoved; }
-
-    public void pieceMoved() { this.hasMoved = true; }
-
-    public void resetPiece() { this.hasMoved = false; }
 
     /**
      * Calculates all the positions a chess piece can move to

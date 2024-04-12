@@ -29,18 +29,24 @@ public class RookCalc implements MoveCalc{
                     case 3 -> col - 1;
                     default -> col;
                 };
-                if (row < 1 || row > 8 || col < 1 || col > 8) break; // if out of bounds, break while loop, start again
-                ChessPosition newPosition = new ChessPosition(row, col);
-                ChessMove possibleMove = new ChessMove(myPosition, newPosition);
-                ChessPiece occupyingPiece = board.getPiece(newPosition);
-                if (occupyingPiece == null) moves.add(possibleMove); // if no one there, add move but don't break
-                else if (occupyingPiece.getTeamColor().equals(myPiece.getTeamColor())) break; // if same team, break
-                else {
-                    moves.add(possibleMove); // if opposite team, add move and break
-                    break;
-                }
+                if (checkOccupantAndAddMove(board, myPosition, moves, myPiece, row, col))
+                    break; // if out of bounds, break while loop, start again
             }
         }
         return moves;
+    }
+
+    static boolean checkOccupantAndAddMove(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves, ChessPiece myPiece, int row, int col) {
+        if (row < 1 || row > 8 || col < 1 || col > 8) return true;
+        ChessPosition newPosition = new ChessPosition(row, col);
+        ChessMove possibleMove = new ChessMove(myPosition, newPosition);
+        ChessPiece occupyingPiece = board.getPiece(newPosition);
+        if (occupyingPiece == null) moves.add(possibleMove); // if no one there, add move but don't break
+        else if (occupyingPiece.getTeamColor().equals(myPiece.getTeamColor())) return true;
+        else {
+            moves.add(possibleMove); // if opposite team, add move and break
+            return true;
+        }
+        return false;
     }
 }

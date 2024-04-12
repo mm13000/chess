@@ -82,7 +82,7 @@ public class PostloginUI extends UI {
         try {
             serverFacade.logout(logoutRequest);
         } catch (ResponseException e) {
-            if (e.StatusCode() == ResponseException.StatusCode.UNAUTHORIZED) {
+            if (e.StatusCode() == ResponseException.statusCode.UNAUTHORIZED) {
                 printErrorMessage("Server threw an unauthorized logout error.");
             } else {
                 printErrorMessage("Error in attempting to logout.");
@@ -103,7 +103,7 @@ public class PostloginUI extends UI {
         try {
             createGameResult = serverFacade.createGame(createGameRequest);
         } catch (ResponseException e) {
-            if (e.StatusCode() == ResponseException.StatusCode.BAD_REQUEST) {
+            if (e.StatusCode() == ResponseException.statusCode.BAD_REQUEST) {
                 printErrorMessage("Game name or number invalid. Please try again.");
             } else {
                 printErrorMessage("Error creating game. You may try again");
@@ -123,7 +123,7 @@ public class PostloginUI extends UI {
         try {
             listGamesResult = serverFacade.listGames(listGamesRequest);
         } catch (ResponseException e) {
-            if (e.StatusCode() == ResponseException.StatusCode.UNAUTHORIZED) {
+            if (e.StatusCode() == ResponseException.statusCode.UNAUTHORIZED) {
                 printErrorMessage("Unauthorized list games request.");
             } else {
                 printErrorMessage("Error attempting to list games.");
@@ -153,7 +153,7 @@ public class PostloginUI extends UI {
         try {
             serverFacade.joinGame(joinGameRequest);
         } catch (ResponseException e) {
-            if (e.StatusCode() == ResponseException.StatusCode.TAKEN) {
+            if (e.StatusCode() == ResponseException.statusCode.TAKEN) {
                 printErrorMessage("The team color requested is already taken by another player. You may try again.");
             } else {
                 printErrorMessage("Error when attempting to join game. You may try again.");
