@@ -4,7 +4,6 @@ import chess.*;
 import chess.ChessGame.TeamColor;
 import chess.ChessPiece.PieceType;
 import com.google.gson.Gson;
-import dataAccess.DataAccessException;
 import dataAccess.auth.AuthDAO;
 import dataAccess.auth.AuthDAOmySQL;
 import dataAccess.game.GameDAO;
@@ -24,7 +23,6 @@ import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.*;
 
 import java.io.IOException;
-import java.util.Map;
 
 @WebSocket
 public class WebSocketServer {

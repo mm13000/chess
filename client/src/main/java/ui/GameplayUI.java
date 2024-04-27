@@ -3,12 +3,10 @@ package ui;
 import chess.*;
 import chess.ChessGame.TeamColor;
 import model.AuthData;
-import serverFacade.ServerFacade;
 import serverFacade.WebSocketFacade;
 
 import static ui.EscapeSequences.*;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 
