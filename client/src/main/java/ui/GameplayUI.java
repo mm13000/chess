@@ -131,10 +131,17 @@ public class GameplayUI extends UI implements GameplayHandler {
      */
 
     private ChessMove getMove() {
-        // Get start and end position
-        System.out.print("Current location of the piece (e.g. 'E5'): ");
+        // Get start position
+        System.out.print("Move piece FROM (e.g. 'E5'): ");
         ChessPosition startPosition = getPosition();
-        System.out.print("Location to which the piece should be moved: ");
+
+        // Check that there is a piece in the start position, prompt again
+        while (game.getBoard().getPiece(startPosition) == null) {
+            System.out.print("No piece at given position. Try again: ");
+            startPosition = getPosition();
+        }
+
+        System.out.print("Move piece TO: ");
         ChessPosition endPosition = getPosition();
 
         // If the move makes the piece eligible for promotion, get the desired promotion type
@@ -242,7 +249,7 @@ public class GameplayUI extends UI implements GameplayHandler {
         printBoardHeader(orientation);
         System.out.print("\n");
 
-        System.out.print(RESET_TEXT_BOLD_FAINT + RESET_TEXT_COLOR);
+        System.out.print(RESET_TEXT_BOLD_FAINT + SET_TEXT_COLOR_WHITE);
     }
 
     private void printBoardHeader(TeamColor orientation) {
@@ -258,7 +265,7 @@ public class GameplayUI extends UI implements GameplayHandler {
         }
         printBoardCell(null);
 
-        System.out.print(RESET_TEXT_BOLD_FAINT + RESET_TEXT_COLOR + SET_BG_COLOR_WHITE);
+        System.out.print(RESET_TEXT_BOLD_FAINT + SET_TEXT_COLOR_WHITE + RESET_BG_COLOR);
         System.out.print("\n");
     }
 
@@ -277,7 +284,7 @@ public class GameplayUI extends UI implements GameplayHandler {
     private void printBoardRowNumber(Integer number) {
         System.out.print(SET_BG_COLOR_DARK_GREEN + SET_TEXT_BOLD + SET_TEXT_COLOR_WHITE);
         printBoardCell(number.toString());
-        System.out.print(RESET_TEXT_BOLD_FAINT + RESET_TEXT_COLOR + SET_BG_COLOR_WHITE);
+        System.out.print(RESET_TEXT_BOLD_FAINT + RESET_TEXT_COLOR + RESET_BG_COLOR);
     }
 
     private void printBoardRow(Integer row, TeamColor orientation, Collection<ChessPosition> highlightedPositions) {
@@ -314,7 +321,7 @@ public class GameplayUI extends UI implements GameplayHandler {
         printBoardCell(pieceChar);
 
         // Reset coloring
-        System.out.print(RESET_TEXT_BOLD_FAINT + RESET_TEXT_COLOR + SET_BG_COLOR_WHITE);
+        System.out.print(RESET_TEXT_BOLD_FAINT + SET_TEXT_COLOR_WHITE + RESET_BG_COLOR);
     }
 
     private void printBoardCell(String character) {

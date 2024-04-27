@@ -110,6 +110,12 @@ public class WebSocketServer {
         GameData gameData = validateGame(session, command.getGameID());
         if (gameData == null) return;
 
+        // Check that there is a piece in the start position of the move
+        if (gameData.game().getBoard().getPiece(command.getMove().getStartPosition()) == null) {
+            sendMessage(session, new ErrorMessage("Error: no piece in given position"));
+            return;
+        }
+
         // Check that the player who is attempting to make the move is in fact the player whose turn it is.
         TeamColor playerColor = getPlayerColor(username, gameData);
         if (playerColor == null) {

@@ -14,12 +14,12 @@ public class UI {
     protected void printErrorMessage(String errorMessage) {
         System.out.print(SET_TEXT_COLOR_RED + SET_TEXT_BOLD);
         System.out.println(errorMessage);
-        System.out.print(RESET_TEXT_COLOR + RESET_TEXT_BOLD_FAINT);
+        System.out.print(SET_TEXT_COLOR_WHITE + RESET_TEXT_BOLD_FAINT);
     }
 
     protected void printNotification(String notification) {
         System.out.print(SET_TEXT_COLOR_BLUE + SET_TEXT_BOLD);
         System.out.println(notification);
-        System.out.print(RESET_TEXT_COLOR + RESET_TEXT_BOLD_FAINT);
+        System.out.print(SET_TEXT_COLOR_WHITE + RESET_TEXT_BOLD_FAINT);
     }
 }

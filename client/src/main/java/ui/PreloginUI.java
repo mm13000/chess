@@ -24,7 +24,7 @@ public class PreloginUI extends UI {
         // display welcome message
         System.out.print(SET_TEXT_COLOR_MAGENTA + SET_TEXT_BOLD);
         System.out.println(WHITE_KING + " Welcome to Chess!" + WHITE_KING);
-        System.out.print(RESET_TEXT_COLOR + RESET_TEXT_BOLD_FAINT);
+        System.out.print(SET_TEXT_COLOR_WHITE + RESET_TEXT_BOLD_FAINT);
 
         // Client REPL loop. Stay in this loop until the user uses the "quit" command to exit the program.
         help();
